@@ -85,7 +85,6 @@ export const AddBookForm = ({ onSuccess }: Props) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* Search input */}
       <div>
         <input
           type="text"
@@ -107,7 +106,6 @@ export const AddBookForm = ({ onSuccess }: Props) => {
         )}
       </div>
 
-      {/* Search results */}
       {results.length > 0 && (
         <ul role="listbox" aria-label="Book search results">
           {results.map((book) => (
@@ -130,10 +128,8 @@ export const AddBookForm = ({ onSuccess }: Props) => {
         </ul>
       )}
 
-      {/* Fields shown after a book is selected */}
       {selected && (
         <>
-          {/* Status */}
           <fieldset>
             <legend>Status</legend>
             {(['finished', 'reading', 'tbr'] as BookStatus[]).map((s) => (
@@ -150,7 +146,6 @@ export const AddBookForm = ({ onSuccess }: Props) => {
             ))}
           </fieldset>
 
-          {/* Rating — only when finished */}
           {status === 'finished' && (
             <fieldset>
               <legend>Rating</legend>
@@ -174,7 +169,6 @@ export const AddBookForm = ({ onSuccess }: Props) => {
             </fieldset>
           )}
 
-          {/* Date finished — only when finished */}
           {status === 'finished' && (
             <label>
               Date finished
@@ -187,7 +181,6 @@ export const AddBookForm = ({ onSuccess }: Props) => {
             </label>
           )}
 
-          {/* Notes */}
           <label>
             Notes
             <textarea
