@@ -1,11 +1,5 @@
-import { AddBookForm } from '@/app/Components/AddBookForm'
+import { redirect } from 'next/navigation'
 
-export const Home = async () => {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <AddBookForm />
-    </div>
-  );
-}
+const Home = () => redirect('/reading')
 
 export default Home

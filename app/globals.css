@@ -153,6 +153,11 @@
   --sp-shadow-sm: 0 2px 8px -3px rgba(45, 42, 32, 0.22);
 }
 
+@keyframes sp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 /* ── Book marquee animation ── */
 @keyframes sp-marquee {
   from { transform: translateX(0); }

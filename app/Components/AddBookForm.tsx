@@ -27,6 +27,7 @@ export const AddBookForm = ({ onSuccess }: Props) => {
   )
   const [notes, setNotes] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [lastAdded, setLastAdded] = useState<string | null>(null)
 
   const handleSearch = async () => {
     if (!query.trim()) return
@@ -74,6 +75,8 @@ export const AddBookForm = ({ onSuccess }: Props) => {
       try {
         await addBook(input)
         router.refresh()
+        setLastAdded(input.title)
+        handleClear()
         onSuccess?.()
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -193,6 +196,9 @@ export const AddBookForm = ({ onSuccess }: Props) => {
         </>
       )}
 
+      {lastAdded && (
+        <p role="status">&#34;{lastAdded}&#34; added to your library!</p>
+      )}
       {error && <p role="alert">{error}</p>}
 
       <button type="submit" disabled={!selected || isPending}>

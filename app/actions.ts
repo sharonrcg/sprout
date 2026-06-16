@@ -1,12 +1,27 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import type { AddBookInput, Book } from '@/lib/types'
+import { getUser } from '@/lib/supabase/getUser'
+import type { AddBookInput, Book, BookStatus } from '@/lib/types'
+
+export const getBooks = async (status?: BookStatus): Promise<Book[]> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) return []
+
+  const base = supabase
+    .from('books')
+    .select('*')
+    .eq('user_id', user.id)
+
+  const { data, error } = await (status ? base.eq('status', status) : base)
+    .order('created_at', { ascending: false })
+
+  if (error) throw new Error(error.message)
+  return (data ?? []) as Book[]
+}
 
 export const addBook = async (input: AddBookInput): Promise<Book> => {
-  const supabase = await createClient()
-
-  const { data: { user } } = await supabase.auth.getUser()
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
   if (!user) throw new Error('Not authenticated')
 
   const { data, error } = await supabase
