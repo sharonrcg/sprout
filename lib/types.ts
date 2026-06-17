@@ -12,6 +12,8 @@ export interface Book {
   sort_order: number | null
   notes: string | null
   finished_at: string | null
+  current_page: number | null
+  page_count: number | null
   created_at: string
   updated_at: string
 }
@@ -25,6 +27,8 @@ export interface AddBookInput {
   rating: number | null
   notes: string | null
   finished_at: string | null
+  page_count: number | null
+  current_page: number | null
 }
 
 export interface BookSearchResult {

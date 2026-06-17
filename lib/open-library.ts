@@ -5,11 +5,11 @@ const COVERS_BASE = 'https://covers.openlibrary.org'
 
 export const coverUrl = (coverId: string | number | null | undefined): string | null => {
   if (!coverId) return null
-  return `${COVERS_BASE}/b/id/${coverId}-M.jpg`
+  return `${COVERS_BASE}/b/id/${coverId}-L.jpg`
 }
 
 export const coverUrlByIsbn = (isbn: string): string => {
-  return `${COVERS_BASE}/b/isbn/${isbn}-M.jpg`
+  return `${COVERS_BASE}/b/isbn/${isbn}-L.jpg`
 }
 
 const toSearchResult = (doc: OpenLibrarySearchResult): BookSearchResult => {

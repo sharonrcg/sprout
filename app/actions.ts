@@ -20,6 +20,82 @@ export const getBooks = async (status?: BookStatus): Promise<Book[]> => {
   return (data ?? []) as Book[]
 }
 
+export const updateBookStatus = async (id: string, status: BookStatus): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('books')
+    .update({
+      status,
+      finished_at: status === 'finished' ? new Date().toISOString().split('T')[0] : null,
+    })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+}
+
+export const removeBook = async (id: string): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('books')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+}
+
+export const updateTbrOrder = async (orderedIds: string[]): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  await Promise.all(
+    orderedIds.map((id, i) =>
+      supabase.from('books').update({ sort_order: i }).eq('id', id).eq('user_id', user.id)
+    )
+  )
+}
+
+export const updateBook = async (
+  id: string,
+  updates: Partial<Pick<Book, 'rating' | 'notes' | 'finished_at'>>
+): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('books')
+    .update(updates)
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+}
+
+export const updateReadingProgress = async (
+  id: string,
+  currentPage: number,
+  pageCount?: number
+): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  const updates: Record<string, number> = { current_page: currentPage }
+  if (pageCount !== undefined && pageCount > 0) updates.page_count = pageCount
+
+  const { error } = await supabase
+    .from('books')
+    .update(updates)
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+}
+
 export const addBook = async (input: AddBookInput): Promise<Book> => {
   const [supabase, user] = await Promise.all([createClient(), getUser()])
   if (!user) throw new Error('Not authenticated')
@@ -36,6 +112,8 @@ export const addBook = async (input: AddBookInput): Promise<Book> => {
       rating: input.status === 'finished' ? input.rating : null,
       notes: input.notes?.trim() ?? null,
       finished_at: input.status === 'finished' ? input.finished_at : null,
+      page_count: input.page_count ?? null,
+      current_page: input.current_page ?? 0,
     })
     .select()
     .single()

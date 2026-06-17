@@ -1,87 +1,182 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Leaf, BookOpen, CheckCheck, Bookmark } from 'lucide-react'
+import { Leaf, CheckCheck, BookOpen, ListOrdered, Plus, X } from 'lucide-react'
+import { AddBookForm, type Mode } from '@/app/Components/AddBookForm'
 
 const NAV = [
-  { href: '/reading', label: 'Reading', Icon: BookOpen },
   { href: '/finished', label: 'Finished', Icon: CheckCheck },
-  { href: '/tbr', label: 'Want to read', Icon: Bookmark },
+  { href: '/reading', label: 'Reading', Icon: BookOpen },
+  { href: '/tbr', label: 'TBR', Icon: ListOrdered },
 ]
 
-export const SidebarNav = () => {
+const pathnameToMode = (pathname: string): Mode => {
+  if (pathname === '/reading') return 'reading'
+  if (pathname === '/tbr') return 'tbr'
+  return 'finished'
+}
+
+interface Props {
+  userName: string | null
+  userEmail: string | null
+}
+
+export const SidebarNav = ({ userName, userEmail }: Props) => {
   const pathname = usePathname()
+  const [modalOpen, setModalOpen] = useState(false)
+  const defaultMode = pathnameToMode(pathname)
+
+  const initial = (userName || userEmail || '?')[0].toUpperCase()
 
   return (
-    <aside
-      style={{
-        width: 232,
-        flexShrink: 0,
-        minHeight: '100vh',
-        padding: '28px 12px',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'var(--sp-paper)',
-        borderRight: '1px solid var(--sp-line)',
-        fontFamily: 'var(--sp-body)',
-      }}
-    >
-      <div
+    <>
+      <aside
         style={{
+          width: 240,
+          flexShrink: 0,
+          minHeight: '100vh',
+          padding: '24px 14px',
           display: 'flex',
-          alignItems: 'center',
-          gap: 9,
-          padding: '4px 10px',
-          marginBottom: 32,
+          flexDirection: 'column',
+          background: 'var(--sp-bg)',
+          borderRight: '1px solid var(--sp-line)',
+          fontFamily: 'var(--sp-body)',
         }}
       >
-        <span
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '0 8px', marginBottom: 28 }}>
+          <span
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: 36, height: 36, borderRadius: 10,
+              background: 'var(--sp-sage)', color: '#fff', flexShrink: 0,
+            }}
+          >
+            <Leaf size={18} />
+          </span>
+          <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 22, color: 'var(--sp-ink)' }}>
+            sprout
+          </span>
+        </div>
+
+        {/* Add a book */}
+        <button
+          onClick={() => setModalOpen(true)}
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 32,
-            height: 32,
-            borderRadius: 9,
-            background: 'var(--sp-sage)',
-            color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            width: '100%', padding: '12px 16px', marginBottom: 20,
+            borderRadius: 999, border: 'none',
+            background: 'var(--sp-clay)', color: '#fff',
+            fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 15,
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px -6px var(--sp-clay)',
           }}
         >
-          <Leaf size={16} />
-        </span>
-        <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 22, color: 'var(--sp-ink)' }}>
-          sprout
-        </span>
-      </div>
+          <Plus size={17} />
+          Add a book
+        </button>
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {NAV.map(({ href, label, Icon }) => {
-          const active = pathname === href
-          return (
-            <Link
-              key={href}
-              href={href}
+        {/* Nav */}
+        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {NAV.map(({ href, label, Icon }) => {
+            const active = pathname === href
+            return (
+              <Link
+                key={href}
+                href={href}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '10px 14px', borderRadius: 12,
+                  textDecoration: 'none', fontSize: 15,
+                  fontWeight: active ? 600 : 400,
+                  color: active ? 'var(--sp-ink)' : 'var(--sp-muted)',
+                  background: active ? 'var(--sp-paper)' : 'transparent',
+                  boxShadow: active ? '0 1px 4px -2px rgba(45,42,32,0.1)' : 'none',
+                  transition: 'background 0.12s, color 0.12s',
+                }}
+              >
+                <Icon size={17} />
+                {label}
+              </Link>
+            )
+          })}
+        </nav>
+
+        <div style={{ flex: 1 }} />
+
+        {/* User */}
+        <div style={{ borderTop: '1px solid var(--sp-line)', paddingTop: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 4px' }}>
+            <div
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 9,
-                padding: '9px 10px',
-                borderRadius: 10,
-                textDecoration: 'none',
-                fontSize: 14,
-                fontWeight: active ? 600 : 400,
-                background: active ? 'var(--sp-sage-soft)' : 'transparent',
-                color: active ? 'var(--sp-sage-deep)' : 'var(--sp-muted)',
-                transition: 'background 0.12s, color 0.12s',
+                width: 38, height: 38, borderRadius: '50%', flexShrink: 0,
+                background: 'var(--sp-clay)', color: '#fff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontWeight: 700, fontSize: 15,
               }}
             >
-              <Icon size={15} />
-              {label}
-            </Link>
-          )
-        })}
-      </nav>
-    </aside>
+              {initial}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              {userName && (
+                <p style={{ fontWeight: 600, fontSize: 14, color: 'var(--sp-ink)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {userName}
+                </p>
+              )}
+              {userEmail && (
+                <p style={{ fontSize: 12, color: 'var(--sp-muted)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {userEmail}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* Add book modal */}
+      {modalOpen && (
+        <div
+          onClick={e => { if (e.target === e.currentTarget) setModalOpen(false) }}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(40,34,22,0.42)', backdropFilter: 'blur(3px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 18,
+          }}
+        >
+          <div
+            style={{
+              width: '100%', maxWidth: 520,
+              background: 'var(--sp-bg)', borderRadius: 24,
+              padding: '28px 28px 32px',
+              boxShadow: '0 18px 40px -14px rgba(45,42,32,0.45)',
+              maxHeight: '90vh', overflowY: 'auto',
+              position: 'relative',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <h2 style={{ fontFamily: 'var(--sp-disp)', fontSize: 27, fontWeight: 400, color: 'var(--sp-ink)', margin: 0 }}>
+                Add a book
+              </h2>
+              <button
+                onClick={() => setModalOpen(false)}
+                aria-label="Close"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  width: 36, height: 36, borderRadius: '50%',
+                  border: '1px solid var(--sp-line)', background: 'var(--sp-paper)',
+                  color: 'var(--sp-muted)', cursor: 'pointer',
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <AddBookForm defaultMode={defaultMode} onSuccess={() => setModalOpen(false)} />
+          </div>
+        </div>
+      )}
+    </>
   )
 }

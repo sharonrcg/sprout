@@ -1,7 +1,7 @@
 import { getBooks } from '@/app/actions'
-import { BookList } from '@/app/Components/BookList'
+import { FinishedShelfGrid } from './FinishedShelfGrid'
 
 export const FinishedShelf = async () => {
   const books = await getBooks('finished')
-  return <BookList books={books} emptyMessage="No finished books yet. You'll get there!" />
+  return <FinishedShelfGrid books={books} />
 }
