@@ -16,7 +16,8 @@ export const Dashboard = async ({ children }: Props) => {
     <div
       style={{
         display: 'flex',
-        minHeight: '100vh',
+        height: '100vh',
+        overflow: 'hidden',
         background: 'var(--sp-bg)',
         fontFamily: 'var(--sp-body)',
       }}
@@ -24,15 +25,31 @@ export const Dashboard = async ({ children }: Props) => {
       <SidebarNav userName={userName} userEmail={userEmail} />
 
       <main
+        className="sp-main"
         style={{
           flex: 1,
-          padding: '36px 48px 80px',
+          padding: '36px 48px 32px',
           overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <Suspense fallback={<ShelfSkeleton />}>
           {children}
         </Suspense>
+        <footer style={{ marginTop: 'auto', paddingTop: 48, textAlign: 'center' }}>
+          <p style={{ fontSize: 13, color: 'var(--sp-muted)', margin: 0, opacity: 0.7 }}>
+            made by{' '}
+            <a
+              href="https://github.com/sharonrcg"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}
+            >
+              @sharonrcg
+            </a>
+          </p>
+        </footer>
       </main>
     </div>
   )

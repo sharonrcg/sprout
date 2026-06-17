@@ -21,6 +21,7 @@ interface Props {
 export const ReadingProgressModal = ({ book, onClose }: Props) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [activeAction, setActiveAction] = useState<'save' | 'finish' | null>(null)
 
   const pageCount = book.page_count ?? 0
   const [page, setPage] = useState(book.current_page ?? 0)
@@ -35,6 +36,7 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
     : null
 
   const handleFinish = () => {
+    setActiveAction('finish')
     startTransition(async () => {
       await updateReadingProgress(book.id, page, pageCount || undefined)
       await updateBookStatus(book.id, 'finished')
@@ -44,6 +46,7 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
   }
 
   const handleSave = () => {
+    setActiveAction('save')
     startTransition(async () => {
       await updateReadingProgress(book.id, page, pageCount || undefined)
       if (book.status === 'tbr') await updateBookStatus(book.id, 'reading')
@@ -224,7 +227,7 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
                 }}
               >
                 <Check size={16} />
-                {isPending ? 'Moving…' : 'I finished it'}
+                {isPending && activeAction === 'finish' ? 'Moving…' : 'I finished it'}
               </button>
             )}
             <button
@@ -241,7 +244,7 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
               }}
             >
               <BookOpen size={16} />
-              {isPending ? 'Saving…' : 'Save progress'}
+              {isPending && activeAction === 'save' ? 'Saving…' : 'Save progress'}
             </button>
           </div>
         </div>

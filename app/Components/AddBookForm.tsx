@@ -533,21 +533,6 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
             </div>
           )}
 
-          {/* tbr fields */}
-          {mode === 'tbr' && (
-            <div>
-              <label style={labelStyle}>
-                Why this one? <span style={{ fontWeight: 400, color: 'var(--sp-faint)' }}>(optional)</span>
-              </label>
-              <textarea
-                value={notes}
-                onChange={e => setNotes(e.target.value)}
-                placeholder="A note to future you…"
-                rows={3}
-                style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.5 }}
-              />
-            </div>
-          )}
 
           {error && (
             <p role="alert" style={{ color: '#9a3d28', fontSize: 13, fontWeight: 600, margin: 0 }}>

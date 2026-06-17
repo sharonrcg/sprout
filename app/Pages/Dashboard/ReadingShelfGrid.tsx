@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { BookOpen, Check, Trash2 } from 'lucide-react'
+import { BarChart2, BookOpen, Check, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { updateBookStatus, removeBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
@@ -106,7 +106,13 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
       onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 10px 28px -12px rgba(45,42,32,0.4)')}
       onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 8px -3px rgba(45,42,32,0.22)')}
     >
-      <BookCover book={book} />
+      <div
+        style={{ transition: 'transform 0.22s cubic-bezier(.2,.8,.3,1)', flexShrink: 0 }}
+        onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-6px) rotate(-.6deg)')}
+        onMouseLeave={e => (e.currentTarget.style.transform = '')}
+      >
+        <BookCover book={book} />
+      </div>
 
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 14 }}>
@@ -177,6 +183,26 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 'auto', paddingTop: 16 }}>
+          <button
+            onClick={(e) => { e.stopPropagation(); onOpen(book) }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              padding: '9px 16px',
+              borderRadius: 999,
+              background: 'var(--sp-paper)',
+              color: 'var(--sp-ink)',
+              fontFamily: 'var(--sp-body)',
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: 'pointer',
+              border: '1.5px solid var(--sp-line-2)',
+            }}
+          >
+            <BarChart2 size={15} />
+            Update progress
+          </button>
           <button
             onClick={(e) => { e.stopPropagation(); onFinish(book.id) }}
             style={{

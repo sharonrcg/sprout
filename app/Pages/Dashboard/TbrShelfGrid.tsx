@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Bookmark, ChevronUp, ChevronDown, Trash2, Check, BookOpen } from 'lucide-react'
@@ -58,6 +58,10 @@ export const TbrShelfGrid = ({ books }: Props) => {
   const [items, setItems] = useState<Book[]>(
     [...books].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
   )
+
+  useEffect(() => {
+    setItems([...books].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)))
+  }, [books])
 
   const move = (index: number, dir: -1 | 1) => {
     const next = [...items]
@@ -152,11 +156,6 @@ export const TbrShelfGrid = ({ books }: Props) => {
                 {book.author && (
                   <p style={{ fontSize: 13, color: 'var(--sp-muted)', marginTop: 3, marginBottom: 0 }}>
                     {book.author}
-                  </p>
-                )}
-                {book.notes && (
-                  <p style={{ fontSize: 13, color: 'var(--sp-ink-soft)', fontStyle: 'italic', marginTop: 3, marginBottom: 0 }}>
-                    &ldquo;{book.notes}&rdquo;
                   </p>
                 )}
               </div>
