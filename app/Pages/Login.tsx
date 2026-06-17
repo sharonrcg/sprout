@@ -1,13 +1,13 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { Eye, EyeOff, Leaf } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import { signIn } from '@/app/actions/auth'
 import { AuthSidePanel } from '@/app/Components'
 
-const Login = () => {
+const LoginForm = () => {
   const [error, action, pending] = useActionState(signIn, null)
   const [showPw, setShowPw] = useState(false)
   const searchParams = useSearchParams()
@@ -132,5 +132,11 @@ const Login = () => {
     </div>
   )
 }
+
+const Login = () => (
+  <Suspense>
+    <LoginForm />
+  </Suspense>
+)
 
 export default Login
