@@ -3,16 +3,14 @@
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { X, Leaf, BookOpen, Check, Pencil, Trash2 } from 'lucide-react'
+import { Leaf, BookOpen, Check, Pencil, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { updateBook, removeBook } from '@/app/actions'
 import type { Book } from '@/lib/types'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
 
-const getCoverColor = (title: string) => {
-  return COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
-}
+const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
 
 const prettyDate = (d: string | null) => {
   if (!d) return null
@@ -117,48 +115,88 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
   }
 
   return (
-    <div
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 100,
-        background: 'rgba(40,34,22,0.42)', backdropFilter: 'blur(3px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 18,
-      }}
-    >
-      <div
-        style={{
-          width: '100%', maxWidth: 780, maxHeight: '90vh', overflowY: 'auto',
-          background: 'var(--sp-bg)', borderRadius: 24,
-          padding: '28px 32px 36px',
-          boxShadow: '0 18px 40px -14px rgba(45,42,32,0.45)',
-          position: 'relative',
-        }}
-      >
+    <div className="bdm-overlay">
+      <style>{`
+        .bdm-overlay {
+          position: fixed;
+          top: 0; right: 0; bottom: 0; left: 0;
+          z-index: 100;
+          background: var(--sp-bg);
+          overflow-y: auto;
+        }
+        @media (min-width: 900px) {
+          .bdm-overlay { left: 240px; }
+        }
+        .bdm-content {
+          max-width: 880px;
+          padding: 36px 48px 72px;
+        }
+        .bdm-grid {
+          display: grid;
+          grid-template-columns: 280px 1fr;
+          gap: 40px;
+          align-items: start;
+        }
+        .bdm-cover-wrap {
+          width: 100%;
+        }
+        .bdm-body {
+          padding-top: 4px;
+          padding-right: 40px;
+        }
+        @media (max-width: 699px) {
+          .bdm-content {
+            padding: 36px 20px 72px;
+          }
+          .bdm-grid {
+            grid-template-columns: 1fr;
+            gap: 22px;
+          }
+          .bdm-left {
+            flex-direction: row !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+          }
+          .bdm-cover-wrap {
+            width: 110px !important;
+            flex-shrink: 0;
+          }
+          .bdm-left-actions {
+            flex-direction: column !important;
+            gap: 8px !important;
+            padding-top: 4px;
+          }
+          .bdm-body {
+            padding-top: 0 !important;
+            padding-right: 0 !important;
+          }
+        }
+      `}</style>
+
+      <div className="bdm-content">
+        {/* Back button */}
         <button
           onClick={onClose}
-          aria-label="Close"
           style={{
-            position: 'absolute', top: 20, right: 20,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: 36, height: 36, borderRadius: '50%',
-            border: '1px solid var(--sp-line)', background: 'var(--sp-paper)',
-            color: 'var(--sp-muted)', cursor: 'pointer',
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'var(--sp-muted)', fontSize: 14, fontWeight: 600,
+            fontFamily: 'var(--sp-body)', padding: 0, marginBottom: 32,
           }}
         >
-          <X size={18} />
+          ← Back to shelf
         </button>
 
         {/* ── delete confirm ── */}
         {confirming ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, paddingTop: 8 }}>
-            <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 27, fontWeight: 400, margin: 0, color: 'var(--sp-ink)' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 480 }}>
+            <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(22px, 5.5vw, 27px)', fontWeight: 400, margin: 0, color: 'var(--sp-ink)' }}>
               Remove this book?
             </h3>
             <p style={{ color: 'var(--sp-ink-soft)', lineHeight: 1.55, fontSize: 15, margin: 0 }}>
               &ldquo;{book.title}&rdquo; will be taken off your shelf. This can&apos;t be undone.
             </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10 }}>
               <button
                 onClick={() => setConfirming(false)}
                 style={{
@@ -186,19 +224,20 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
           </div>
         ) : (
           /* ── main layout ── */
-          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 40, alignItems: 'start' }}>
+          <div className="bdm-grid">
 
             {/* left: cover + action buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div className="bdm-left" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div
+                className="bdm-cover-wrap"
                 style={{
-                  position: 'relative', width: '100%', aspectRatio: '2/3',
+                  position: 'relative', aspectRatio: '2/3',
                   borderRadius: 12, overflow: 'hidden',
                   background: getCoverColor(book.title),
                   boxShadow: '0 10px 28px -12px rgba(45,42,32,0.4)',
                 }}
               >
-                {src && <Image src={src} alt={book.title} fill sizes="200px" style={{ objectFit: 'cover', zIndex: 1 }} />}
+                {src && <Image src={src} alt={book.title} fill sizes="280px" style={{ objectFit: 'cover', zIndex: 1 }} />}
                 {!src && (
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '11% 9%', color: '#fff' }}>
                     <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 14, lineHeight: 1.05, margin: 0 }}>{book.title}</p>
@@ -210,7 +249,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
               </div>
 
               {!editing && (
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div className="bdm-left-actions" style={{ display: 'flex', gap: 8 }}>
                   <button
                     onClick={() => setEditing(true)}
                     style={{
@@ -240,7 +279,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
             </div>
 
             {/* right: body */}
-            <div style={{ paddingTop: 4, paddingRight: 40 }}>
+            <div className="bdm-body">
               <h1
                 style={{
                   fontFamily: 'var(--sp-disp)', fontWeight: 400,
@@ -251,7 +290,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
                 {book.title}
               </h1>
               {book.author && (
-                <p style={{ fontSize: 18, color: 'var(--sp-muted)', marginTop: 6, marginBottom: 0 }}>
+                <p style={{ fontSize: 'clamp(15px, 3.8vw, 18px)', color: 'var(--sp-muted)', marginTop: 6, marginBottom: 0 }}>
                   {book.author}
                 </p>
               )}
@@ -270,7 +309,6 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
                         <BookOpen size={16} style={{ color: 'var(--sp-sage)', marginLeft: '12px' }} />
                         {book.page_count ? `${book.page_count} pages` : 'Page count unknown'}
                       </span>
-
                     </div>
                   )}
                   <div>
@@ -318,7 +356,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
                       style={{ ...inputStyle, resize: 'vertical', minHeight: 96, lineHeight: 1.5 }}
                     />
                   </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
                     <button
                       type="button"
                       onClick={resetEdit}

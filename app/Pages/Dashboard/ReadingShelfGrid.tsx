@@ -11,9 +11,7 @@ import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import type { Book } from '@/lib/types'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
-const getCoverColor = (title: string) => {
-  return COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
-}
+const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
 
 const BookCover = ({ book }: { book: Book }) => {
   const src = book.cover_i
@@ -26,8 +24,7 @@ const BookCover = ({ book }: { book: Book }) => {
     <div
       style={{
         position: 'relative',
-        width: 92,
-        flexShrink: 0,
+        width: '100%',
         aspectRatio: '2 / 3',
         borderRadius: 7,
         overflow: 'hidden',
@@ -92,10 +89,9 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
   return (
     <article
       onClick={() => onOpen(book)}
+      className="rc-card"
       style={{
         display: 'flex',
-        gap: 20,
-        padding: 20,
         background: 'var(--sp-paper)',
         border: '1px solid var(--sp-line)',
         borderRadius: 20,
@@ -107,7 +103,8 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
       onMouseLeave={e => (e.currentTarget.style.boxShadow = '0 2px 8px -3px rgba(45,42,32,0.22)')}
     >
       <div
-        style={{ transition: 'transform 0.22s cubic-bezier(.2,.8,.3,1)', flexShrink: 0 }}
+        className="rc-cover-wrap"
+        style={{ transition: 'transform 0.22s cubic-bezier(.2,.8,.3,1)', flexShrink: 0, alignSelf: 'center' }}
         onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-6px) rotate(-.6deg)')}
         onMouseLeave={e => (e.currentTarget.style.transform = '')}
       >
@@ -121,7 +118,7 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
               style={{
                 fontFamily: 'var(--sp-disp)',
                 fontWeight: 400,
-                fontSize: 23,
+                fontSize: 'clamp(18px, 4.8vw, 23px)',
                 lineHeight: 1.16,
                 color: 'var(--sp-ink)',
                 margin: 0,
@@ -182,44 +179,17 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
           </p>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 'auto', paddingTop: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 'auto', paddingTop: 16, flexWrap: 'wrap' }}>
           <button
             onClick={(e) => { e.stopPropagation(); onOpen(book) }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 7,
-              padding: '9px 16px',
-              borderRadius: 999,
-              background: 'var(--sp-paper)',
-              color: 'var(--sp-ink)',
-              fontFamily: 'var(--sp-body)',
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: 'pointer',
-              border: '1.5px solid var(--sp-line-2)',
-            }}
+            className="rc-btn rc-btn-update"
           >
             <BarChart2 size={15} />
             Update progress
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onFinish(book.id) }}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 7,
-              padding: '9px 16px',
-              borderRadius: 999,
-              background: 'var(--sp-sage)',
-              color: '#fff',
-              fontFamily: 'var(--sp-body)',
-              fontWeight: 600,
-              fontSize: 14,
-              cursor: 'pointer',
-              border: 'none',
-              boxShadow: '0 8px 18px -8px var(--sp-sage)',
-            }}
+            className="rc-btn rc-btn-finish"
           >
             <Check size={15} />
             Finished
@@ -274,6 +244,50 @@ export const ReadingShelfGrid = ({ books }: Props) => {
 
   return (
     <>
+      <style>{`
+        .rc-card {
+          gap: 20px;
+          padding: 20px;
+        }
+        .rc-cover-wrap {
+          width: clamp(48px, 12vw, 92px);
+        }
+        .rc-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 9px 16px;
+          border-radius: 999px;
+          font-family: var(--sp-body);
+          font-weight: 600;
+          font-size: 14px;
+          cursor: pointer;
+        }
+        .rc-btn-update {
+          background: var(--sp-paper);
+          color: var(--sp-ink);
+          border: 1.5px solid var(--sp-line-2);
+        }
+        .rc-btn-finish {
+          background: var(--sp-sage);
+          color: #fff;
+          border: none;
+          box-shadow: 0 8px 18px -8px var(--sp-sage);
+        }
+
+        @media (max-width: 899px) {
+          .rc-card {
+            gap: 12px;
+            padding: 14px;
+          }
+          .rc-btn {
+            padding: 7px 11px;
+            font-size: 13px;
+            gap: 5px;
+          }
+        }
+      `}</style>
+
       <div
         style={{
           display: 'flex',
@@ -346,7 +360,7 @@ export const ReadingShelfGrid = ({ books }: Props) => {
           <h3
             style={{
               fontFamily: 'var(--sp-disp)',
-              fontSize: 27,
+              fontSize: 'clamp(22px, 5.5vw, 27px)',
               fontWeight: 400,
               color: 'var(--sp-ink)',
               margin: 0,

@@ -58,6 +58,33 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
   return (
     <>
       <style>{`
+        @keyframes sp-slide-up {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+        .rpm-overlay {
+          align-items: center;
+          justify-content: center;
+        }
+        .rpm-inner {
+          /* desktop defaults handled by inline style */
+        }
+        .rpm-handle { display: none; }
+        @media (max-width: 699px) {
+          .rpm-overlay {
+            align-items: flex-end !important;
+            padding: 0 !important;
+          }
+          .rpm-inner {
+            max-width: 100% !important;
+            border-radius: 24px 24px 0 0 !important;
+            padding-bottom: 40px !important;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: sp-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+          }
+          .rpm-handle { display: block; }
+        }
         .sp-slider {
           -webkit-appearance: none;
           appearance: none;
@@ -98,14 +125,15 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
 
       <div
         onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+        className="rpm-overlay"
         style={{
           position: 'fixed', inset: 0, zIndex: 100,
           background: 'rgba(40,34,22,0.42)', backdropFilter: 'blur(3px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 18,
+          display: 'flex', padding: 18,
         }}
       >
         <div
+          className="rpm-inner"
           style={{
             width: '100%', maxWidth: 540,
             background: 'var(--sp-bg)', borderRadius: 24,
@@ -114,9 +142,11 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
             position: 'relative',
           }}
         >
+          {/* drag handle — visible on mobile only via CSS */}
+          <div style={{ width: 36, height: 4, borderRadius: 99, background: 'var(--sp-line-2)', margin: '0 auto 18px' }} className="rpm-handle" />
           {/* title row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 27, fontWeight: 400, color: 'var(--sp-ink)', margin: 0 }}>
+            <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(22px, 5.5vw, 27px)', fontWeight: 400, color: 'var(--sp-ink)', margin: 0 }}>
               Update progress
             </h3>
             <button
@@ -152,7 +182,7 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
               <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', background: 'linear-gradient(105deg, rgba(255,255,255,0.16) 0%, transparent 22%)' }} />
             </div>
             <div>
-              <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 22, fontWeight: 400, lineHeight: 1.1, color: 'var(--sp-ink)', margin: 0 }}>
+              <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(17px, 4.8vw, 22px)', fontWeight: 400, lineHeight: 1.1, color: 'var(--sp-ink)', margin: 0 }}>
                 {book.title}
               </h3>
               {book.author && (
@@ -163,8 +193,8 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
 
           {/* percentage + label */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 16 }}>
-            <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 48, lineHeight: 1, color: 'var(--sp-sage-deep)' }}>
-              {pct}<small style={{ fontSize: 22, color: 'var(--sp-sage)' }}>%</small>
+            <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(36px, 10vw, 48px)', lineHeight: 1, color: 'var(--sp-sage-deep)' }}>
+              {pct}<small style={{ fontSize: 'clamp(17px, 4.5vw, 22px)', color: 'var(--sp-sage)' }}>%</small>
             </span>
             <span style={{ fontSize: 15, color: 'var(--sp-muted)' }}>
               {pageCount > 0 ? `page ${page} of ${pageCount}` : 'in progress'}

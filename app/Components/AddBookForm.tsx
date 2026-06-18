@@ -138,7 +138,7 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
       cover_i: selected.cover_i,
       status: mode === 'tbr' ? 'tbr' : mode === 'reading' ? 'reading' : 'finished',
       rating: mode === 'finished' ? (rating || null) : null,
-      notes: notes.trim() || null,
+      notes: mode === 'finished' ? (notes.trim() || null) : null,
       finished_at: mode === 'finished' ? finishedAt : null,
       page_count: pageCount,
       current_page: currentPage,
@@ -518,18 +518,6 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
                 )
               })()}
 
-              <div>
-                <label style={labelStyle}>
-                  A note <span style={{ fontWeight: 400, color: 'var(--sp-faint)' }}>(optional)</span>
-                </label>
-                <textarea
-                  value={notes}
-                  onChange={e => setNotes(e.target.value)}
-                  placeholder="How's it going so far?"
-                  rows={3}
-                  style={{ ...inputStyle, resize: 'vertical', minHeight: 80, lineHeight: 1.5 }}
-                />
-              </div>
             </div>
           )}
 

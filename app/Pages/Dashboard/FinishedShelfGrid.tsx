@@ -319,7 +319,7 @@ export const FinishedShelfGrid = ({ books }: Props) => {
           <h3
             style={{
               fontFamily: 'var(--sp-disp)',
-              fontSize: 27,
+              fontSize: 'clamp(22px, 5.5vw, 27px)',
               fontWeight: 400,
               color: 'var(--sp-ink)',
               margin: 0,
@@ -355,7 +355,7 @@ export const FinishedShelfGrid = ({ books }: Props) => {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(max(130px, calc((100% - 110px) / 6)), 1fr))',
             gap: '30px 22px',
           }}
         >
@@ -376,7 +376,7 @@ export const FinishedShelfGrid = ({ books }: Props) => {
                 <BookCoverImage book={book} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 18, lineHeight: 1.08, color: 'var(--sp-ink)' }}>
+                <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(15px, 3.8vw, 18px)', lineHeight: 1.08, color: 'var(--sp-ink)' }}>
                   {book.title}
                 </span>
                 {book.author && (

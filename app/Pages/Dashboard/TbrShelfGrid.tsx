@@ -11,11 +11,9 @@ import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import type { Book } from '@/lib/types'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
-const getCoverColor = (title: string) => {
-  return COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
-}
+const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
 
-const BookCover = ({ book }: { book: Book }) => {
+const BookCover = ({ book, className }: { book: Book; className?: string }) => {
   const src = book.cover_i
     ? coverUrl(book.cover_i)
     : book.isbn
@@ -24,9 +22,12 @@ const BookCover = ({ book }: { book: Book }) => {
 
   return (
     <div
+      className={className}
       style={{
-        position: 'relative', width: 54, flexShrink: 0,
-        aspectRatio: '2/3', borderRadius: 5, overflow: 'hidden',
+        position: 'relative',
+        aspectRatio: '2/3',
+        borderRadius: 5,
+        overflow: 'hidden',
         background: getCoverColor(book.title),
         boxShadow: '0 4px 12px -4px rgba(45,42,32,0.4)',
       }}
@@ -92,6 +93,60 @@ export const TbrShelfGrid = ({ books }: Props) => {
 
   return (
     <>
+      <style>{`
+        .tbr-cover {
+          width: clamp(32px, 8vw, 54px);
+          flex-shrink: 0;
+        }
+        .tbr-card {
+          gap: 14px;
+        }
+        .tbr-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex-shrink: 0;
+        }
+        .tbr-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 4px 16px;
+          border-radius: 999px;
+          font-family: var(--sp-body);
+          font-weight: 600;
+          font-size: 14px;
+          border: none;
+          cursor: pointer;
+        }
+        .tbr-btn-finished {
+          background: var(--sp-sage);
+          color: #fff;
+          box-shadow: 0 8px 18px -8px var(--sp-sage);
+        }
+        .tbr-btn-reading {
+          background: var(--sp-clay);
+          color: #fff;
+          box-shadow: 0 8px 18px -8px var(--sp-clay);
+        }
+
+        @media (max-width: 899px) {
+          .tbr-card {
+            flex-wrap: wrap;
+            gap: 10px;
+          }
+          .tbr-actions {
+            flex-basis: 100%;
+            justify-content: flex-end;
+          }
+          .tbr-btn {
+            padding: 3px 10px;
+            font-size: 13px;
+            gap: 5px;
+          }
+        }
+      `}</style>
+
       <div
         style={{
           display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
@@ -122,7 +177,7 @@ export const TbrShelfGrid = ({ books }: Props) => {
           <div style={{ width: 88, height: 88, borderRadius: 26, background: 'var(--sp-sage-soft)', color: 'var(--sp-sage)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
             <Bookmark size={40} />
           </div>
-          <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 27, fontWeight: 400, color: 'var(--sp-ink)', margin: 0 }}>
+          <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(22px, 5.5vw, 27px)', fontWeight: 400, color: 'var(--sp-ink)', margin: 0 }}>
             Your list is empty
           </h3>
           <p style={{ maxWidth: 320, color: 'var(--sp-muted)', lineHeight: 1.5, margin: 0 }}>
@@ -134,23 +189,47 @@ export const TbrShelfGrid = ({ books }: Props) => {
           {items.map((book, i) => (
             <li
               key={book.id}
+              className="tbr-card"
               style={{
-                display: 'flex', alignItems: 'center', gap: 14,
+                display: 'flex',
+                alignItems: 'center',
                 padding: '14px 16px',
-                background: 'var(--sp-paper)', border: '1px solid var(--sp-line)',
-                borderRadius: 20, boxShadow: '0 2px 8px -3px rgba(45,42,32,0.22)',
+                background: 'var(--sp-paper)',
+                border: '1px solid var(--sp-line)',
+                borderRadius: 20,
+                boxShadow: '0 2px 8px -3px rgba(45,42,32,0.22)',
               }}
             >
+              {/* up/down arrows — leftmost */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flexShrink: 0 }}>
+                <button
+                  onClick={() => move(i, -1)}
+                  disabled={i === 0 || isPending}
+                  aria-label="Move up"
+                  style={{ ...arrowBtn, opacity: i === 0 ? 0.3 : 1 }}
+                >
+                  <ChevronUp size={14} />
+                </button>
+                <button
+                  onClick={() => move(i, 1)}
+                  disabled={i === items.length - 1 || isPending}
+                  aria-label="Move down"
+                  style={{ ...arrowBtn, opacity: i === items.length - 1 ? 0.3 : 1 }}
+                >
+                  <ChevronDown size={14} />
+                </button>
+              </div>
+
               {/* rank */}
-              <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 26, color: 'var(--sp-clay)', width: 28, textAlign: 'center', flexShrink: 0 }}>
+              <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(20px, 5.5vw, 26px)', color: 'var(--sp-clay)', width: 28, textAlign: 'center', flexShrink: 0 }}>
                 {i + 1}
               </span>
 
-              <BookCover book={book} />
+              <BookCover book={book} className="tbr-cover" />
 
               {/* info */}
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 21, lineHeight: 1.14, color: 'var(--sp-ink)', margin: 0 }}>
+                <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(17px, 4.5vw, 21px)', lineHeight: 1.14, color: 'var(--sp-ink)', margin: 0 }}>
                   {book.title}
                 </p>
                 {book.author && (
@@ -160,41 +239,14 @@ export const TbrShelfGrid = ({ books }: Props) => {
                 )}
               </div>
 
-              {/* actions */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                {/* up/down */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                  <button
-                    onClick={() => move(i, -1)}
-                    disabled={i === 0 || isPending}
-                    aria-label="Move up"
-                    style={{ ...arrowBtn, opacity: i === 0 ? 0.3 : 1 }}
-                  >
-                    <ChevronUp size={14} />
-                  </button>
-                  <button
-                    onClick={() => move(i, 1)}
-                    disabled={i === items.length - 1 || isPending}
-                    aria-label="Move down"
-                    style={{ ...arrowBtn, opacity: i === items.length - 1 ? 0.3 : 1 }}
-                  >
-                    <ChevronDown size={14} />
-                  </button>
-                </div>
-
+              {/* actions — finished + reading + delete only */}
+              <div className="tbr-actions">
                 {/* finished + reading */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 6 }}>
                   <button
                     onClick={() => handleFinished(book.id)}
                     disabled={isPending}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 7,
-                      padding: '4px 16px', borderRadius: 999,
-                      background: 'var(--sp-sage)', color: '#fff',
-                      fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 14,
-                      border: 'none', cursor: 'pointer',
-                      boxShadow: '0 8px 18px -8px var(--sp-sage)',
-                    }}
+                    className="tbr-btn tbr-btn-finished"
                   >
                     <Check size={14} />
                     Finished
@@ -202,14 +254,7 @@ export const TbrShelfGrid = ({ books }: Props) => {
                   <button
                     onClick={() => setProgressBook(book)}
                     disabled={isPending}
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 7,
-                      padding: '4px 16px', borderRadius: 999,
-                      background: 'var(--sp-clay)', color: '#fff',
-                      fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 14,
-                      border: 'none', cursor: 'pointer',
-                      boxShadow: '0 8px 18px -8px var(--sp-clay)',
-                    }}
+                    className="tbr-btn tbr-btn-reading"
                   >
                     <BookOpen size={14} />
                     Reading
