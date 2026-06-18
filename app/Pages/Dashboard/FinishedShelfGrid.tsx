@@ -11,18 +11,18 @@ import '@/app/css/FinishedShelfGrid.css'
 
 const SORT_OPTIONS = {
   recent: {
-    label: 'Recently finished',
+    label: 'Recent',
     fn: (a: Book, b: Book) =>
       (b.finished_at ?? b.created_at).localeCompare(a.finished_at ?? a.created_at),
   },
   rating: {
-    label: 'Highest rated',
+    label: 'Rating',
     fn: (a: Book, b: Book) =>
       (b.rating ?? 0) - (a.rating ?? 0) ||
       (b.finished_at ?? '').localeCompare(a.finished_at ?? ''),
   },
   title: {
-    label: 'Title A–Z',
+    label: 'A–Z',
     fn: (a: Book, b: Book) => a.title.localeCompare(b.title),
   },
 } as const
