@@ -96,6 +96,22 @@ export const updateReadingProgress = async (
   if (error) throw new Error(error.message)
 }
 
+export const finishBook = async (
+  id: string,
+  data: { rating: number | null; notes: string | null; finished_at: string | null }
+): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('books')
+    .update({ status: 'finished', rating: data.rating, notes: data.notes, finished_at: data.finished_at })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+}
+
 export const addBook = async (input: AddBookInput): Promise<Book> => {
   const [supabase, user] = await Promise.all([createClient(), getUser()])
   if (!user) throw new Error('Not authenticated')

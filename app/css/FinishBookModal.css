@@ -1,0 +1,193 @@
+@keyframes fbm-slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ── Overlay ── */
+.fbm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(40, 34, 22, 0.42);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ── Sheet ── */
+.fbm-inner {
+  width: 100%;
+  max-width: 480px;
+  background: var(--sp-bg);
+  border-radius: 24px;
+  padding: 24px 28px 32px;
+  box-shadow: 0 24px 48px -12px rgba(45, 42, 32, 0.45);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* ── Mobile: slide up from bottom ── */
+@media (max-width: 699px) {
+  .fbm-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .fbm-inner {
+    border-radius: 24px 24px 0 0;
+    max-height: 88vh;
+    animation: fbm-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .fbm-handle { display: block; }
+}
+
+/* ── Drag handle (mobile only) ── */
+.fbm-handle {
+  display: none;
+  width: 36px;
+  height: 4px;
+  border-radius: 99px;
+  background: var(--sp-line-2);
+  margin: 0 auto -8px;
+}
+
+/* ── Header row ── */
+.fbm-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.fbm-title {
+  font-family: var(--sp-disp);
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--sp-ink);
+  margin: 0;
+}
+.fbm-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--sp-line);
+  background: var(--sp-paper);
+  color: var(--sp-muted);
+  cursor: pointer;
+}
+
+/* ── Book header ── */
+.fbm-book-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--sp-paper);
+  border-radius: 14px;
+  border: 1px solid var(--sp-line);
+}
+.fbm-book-cover {
+  position: relative;
+  width: 48px;
+  aspect-ratio: 2/3;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px -4px rgba(45, 42, 32, 0.4);
+}
+.fbm-book-cover img { object-fit: cover; z-index: 1; }
+.fbm-cover-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(105deg, rgba(255,255,255,0.16) 0%, transparent 22%, transparent 78%, rgba(0,0,0,0.12) 100%);
+}
+.fbm-book-title {
+  font-family: var(--sp-disp);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.12;
+  color: var(--sp-ink);
+  margin: 0;
+}
+.fbm-book-author {
+  font-size: 13px;
+  color: var(--sp-muted);
+  margin: 3px 0 0;
+}
+
+/* ── Fields ── */
+.fbm-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fbm-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sp-ink-soft);
+}
+.fbm-label-faint {
+  font-weight: 400;
+  color: var(--sp-faint);
+}
+.fbm-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--sp-line-2);
+  background: var(--sp-paper);
+  font-size: 15px;
+  color: var(--sp-ink);
+  font-family: var(--sp-body);
+  outline: none;
+  box-sizing: border-box;
+}
+.fbm-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--sp-line-2);
+  background: var(--sp-paper);
+  font-size: 15px;
+  color: var(--sp-ink);
+  font-family: var(--sp-body);
+  outline: none;
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.5;
+}
+.fbm-leaf-btn {
+  display: flex;
+  padding: 3px;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+/* ── Finish button ── */
+.fbm-finish-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: var(--sp-clay);
+  color: #fff;
+  font-family: var(--sp-body);
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  box-shadow: 0 8px 18px -8px var(--sp-clay);
+  cursor: pointer;
+}
+.fbm-finish-btn:disabled { cursor: default; }

@@ -5,9 +5,10 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { BarChart2, BookOpen, Check, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { updateBookStatus, removeBook } from '@/app/actions'
+import { removeBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
+import { FinishBookModal } from '@/app/Components/FinishBookModal'
 import type { Book } from '@/lib/types'
 import '@/app/css/ReadingShelfGrid.css'
 
@@ -39,7 +40,7 @@ const BookCover = ({ book }: { book: Book }) => {
 const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
   book: Book
   onOpen: (book: Book) => void
-  onFinish: (id: string) => void
+  onFinish: (book: Book) => void
   onRemove: (id: string) => void
 }) => {
   const pct = book.page_count && book.page_count > 0
@@ -87,7 +88,7 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
             Update progress
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); onFinish(book.id) }}
+            onClick={(e) => { e.stopPropagation(); onFinish(book) }}
             className="rc-btn rc-btn-finish"
           >
             <Check size={15} />
@@ -114,13 +115,7 @@ export const ReadingShelfGrid = ({ books }: Props) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [activeBook, setActiveBook] = useState<Book | null>(null)
-
-  const handleFinish = (id: string) => {
-    startTransition(async () => {
-      await updateBookStatus(id, 'finished')
-      router.refresh()
-    })
-  }
+  const [finishBook, setFinishBook] = useState<Book | null>(null)
 
   const handleRemove = (id: string) => {
     startTransition(async () => {
@@ -159,7 +154,7 @@ export const ReadingShelfGrid = ({ books }: Props) => {
               key={book.id}
               book={book}
               onOpen={setActiveBook}
-              onFinish={handleFinish}
+              onFinish={setFinishBook}
               onRemove={handleRemove}
             />
           ))}
@@ -168,6 +163,9 @@ export const ReadingShelfGrid = ({ books }: Props) => {
 
       {activeBook && (
         <ReadingProgressModal book={activeBook} onClose={() => setActiveBook(null)} />
+      )}
+      {finishBook && (
+        <FinishBookModal book={finishBook} onClose={() => setFinishBook(null)} />
       )}
     </>
   )

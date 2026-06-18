@@ -5,9 +5,10 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Bookmark, ChevronUp, ChevronDown, Trash2, Check, BookOpen } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { removeBook, updateTbrOrder, updateBookStatus } from '@/app/actions'
+import { removeBook, updateTbrOrder } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
+import { FinishBookModal } from '@/app/Components/FinishBookModal'
 import type { Book } from '@/lib/types'
 import '@/app/css/TbrShelfGrid.css'
 
@@ -66,14 +67,8 @@ export const TbrShelfGrid = ({ books }: Props) => {
     })
   }
 
-  const handleFinished = (id: string) => {
-    startTransition(async () => {
-      await updateBookStatus(id, 'finished')
-      router.push('/finished')
-    })
-  }
-
   const [progressBook, setProgressBook] = useState<Book | null>(null)
+  const [finishBook, setFinishBook] = useState<Book | null>(null)
 
   return (
     <>
@@ -136,7 +131,7 @@ export const TbrShelfGrid = ({ books }: Props) => {
                 </div>
                 <div className="tbr-actions">
                   <div className="tbr-btn-group">
-                    <button onClick={() => handleFinished(book.id)} disabled={isPending} className="tbr-btn tbr-btn-finished">
+                    <button onClick={() => setFinishBook(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
                       <Check size={14} /> Finished
                     </button>
                     <button onClick={() => setProgressBook(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
@@ -159,6 +154,9 @@ export const TbrShelfGrid = ({ books }: Props) => {
 
       {progressBook && (
         <ReadingProgressModal book={progressBook} onClose={() => setProgressBook(null)} />
+      )}
+      {finishBook && (
+        <FinishBookModal book={finishBook} onClose={() => setFinishBook(null)} />
       )}
     </>
   )
