@@ -98,9 +98,24 @@ export const TbrShelfGrid = ({ books }: Props) => {
           width: clamp(32px, 8vw, 54px);
           flex-shrink: 0;
         }
-        .tbr-card {
-          gap: 14px;
+        .tbr-card { gap: 18px; }
+        .tbr-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-shrink: 0;
+          align-self: stretch;
+          padding-right: 14px;
+          border-right: 1px solid var(--sp-line);
         }
+        .tbr-right {
+          display: flex;
+          align-items: center;
+          flex: 1;
+          min-width: 0;
+          gap: 8px;
+        }
+        .tbr-info { flex: 1; min-width: 0; }
         .tbr-actions {
           display: flex;
           align-items: center;
@@ -131,19 +146,19 @@ export const TbrShelfGrid = ({ books }: Props) => {
         }
 
         @media (max-width: 899px) {
-          .tbr-card {
-            flex-wrap: wrap;
-            gap: 10px;
+          .tbr-card { align-items: stretch; gap: 14px; }
+          .tbr-left { align-items: center; gap: 8px; }
+          .tbr-right {
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: center;
+            gap: 8px;
           }
-          .tbr-actions {
-            flex-basis: 100%;
-            justify-content: flex-end;
-          }
-          .tbr-btn {
-            padding: 3px 10px;
-            font-size: 13px;
-            gap: 5px;
-          }
+          .tbr-actions { justify-content: space-between; }
+          .tbr-btn { padding: 3px 10px; font-size: 13px; gap: 5px; }
+        }
+        @media (max-width: 640px) {
+          .tbr-rank { display: none; }
         }
       `}</style>
 
@@ -192,7 +207,7 @@ export const TbrShelfGrid = ({ books }: Props) => {
               className="tbr-card"
               style={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'stretch',
                 padding: '14px 16px',
                 background: 'var(--sp-paper)',
                 border: '1px solid var(--sp-line)',
@@ -200,80 +215,66 @@ export const TbrShelfGrid = ({ books }: Props) => {
                 boxShadow: '0 2px 8px -3px rgba(45,42,32,0.22)',
               }}
             >
-              {/* up/down arrows — leftmost */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flexShrink: 0 }}>
-                <button
-                  onClick={() => move(i, -1)}
-                  disabled={i === 0 || isPending}
-                  aria-label="Move up"
-                  style={{ ...arrowBtn, opacity: i === 0 ? 0.3 : 1 }}
-                >
-                  <ChevronUp size={14} />
-                </button>
-                <button
-                  onClick={() => move(i, 1)}
-                  disabled={i === items.length - 1 || isPending}
-                  aria-label="Move down"
-                  style={{ ...arrowBtn, opacity: i === items.length - 1 ? 0.3 : 1 }}
-                >
-                  <ChevronDown size={14} />
-                </button>
-              </div>
-
-              {/* rank */}
-              <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(20px, 5.5vw, 26px)', color: 'var(--sp-clay)', width: 28, textAlign: 'center', flexShrink: 0 }}>
-                {i + 1}
-              </span>
-
-              <BookCover book={book} className="tbr-cover" />
-
-              {/* info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(17px, 4.5vw, 21px)', lineHeight: 1.14, color: 'var(--sp-ink)', margin: 0 }}>
-                  {book.title}
-                </p>
-                {book.author && (
-                  <p style={{ fontSize: 13, color: 'var(--sp-muted)', marginTop: 3, marginBottom: 0 }}>
-                    {book.author}
-                  </p>
-                )}
-              </div>
-
-              {/* actions — finished + reading + delete only */}
-              <div className="tbr-actions">
-                {/* finished + reading */}
-                <div style={{ display: 'flex', gap: 6 }}>
+              {/* LEFT: arrows + rank + cover */}
+              <div className="tbr-left">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flexShrink: 0 }}>
                   <button
-                    onClick={() => handleFinished(book.id)}
-                    disabled={isPending}
-                    className="tbr-btn tbr-btn-finished"
+                    onClick={() => move(i, -1)}
+                    disabled={i === 0 || isPending}
+                    aria-label="Move up"
+                    style={{ ...arrowBtn, opacity: i === 0 ? 0.3 : 1 }}
                   >
-                    <Check size={14} />
-                    Finished
+                    <ChevronUp size={14} />
                   </button>
                   <button
-                    onClick={() => setProgressBook(book)}
-                    disabled={isPending}
-                    className="tbr-btn tbr-btn-reading"
+                    onClick={() => move(i, 1)}
+                    disabled={i === items.length - 1 || isPending}
+                    aria-label="Move down"
+                    style={{ ...arrowBtn, opacity: i === items.length - 1 ? 0.3 : 1 }}
                   >
-                    <BookOpen size={14} />
-                    Reading
+                    <ChevronDown size={14} />
                   </button>
                 </div>
+                <span className="tbr-rank" style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(20px, 5.5vw, 26px)', color: 'var(--sp-clay)', width: 28, textAlign: 'center', flexShrink: 0 }}>
+                  {i + 1}
+                </span>
+                <BookCover book={book} className="tbr-cover" />
+              </div>
 
-                {/* delete */}
-                <button
-                  onClick={() => handleDelete(book.id)}
-                  aria-label="Remove"
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    width: 34, height: 34, borderRadius: 9,
-                    border: '1px solid var(--sp-line)', background: 'var(--sp-paper)',
-                    color: 'var(--sp-muted)', cursor: 'pointer', flexShrink: 0,
-                  }}
-                >
-                  <Trash2 size={15} />
-                </button>
+              {/* RIGHT: info + actions */}
+              <div className="tbr-right">
+                <div className="tbr-info">
+                  <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(17px, 4.5vw, 21px)', lineHeight: 1.14, color: 'var(--sp-ink)', margin: 0 }}>
+                    {book.title}
+                  </p>
+                  {book.author && (
+                    <p style={{ fontSize: 13, color: 'var(--sp-muted)', marginTop: 3, marginBottom: 0 }}>
+                      {book.author}
+                    </p>
+                  )}
+                </div>
+                <div className="tbr-actions">
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button onClick={() => handleFinished(book.id)} disabled={isPending} className="tbr-btn tbr-btn-finished">
+                      <Check size={14} /> Finished
+                    </button>
+                    <button onClick={() => setProgressBook(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
+                      <BookOpen size={14} /> Reading
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => handleDelete(book.id)}
+                    aria-label="Remove"
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      width: 34, height: 34, borderRadius: 9,
+                      border: '1px solid var(--sp-line)', background: 'var(--sp-paper)',
+                      color: 'var(--sp-muted)', cursor: 'pointer', flexShrink: 0,
+                    }}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
               </div>
             </li>
           ))}

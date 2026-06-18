@@ -156,6 +156,19 @@ export const FinishedShelfGrid = ({ books }: Props) => {
 
   return (
     <>
+      <style>{`
+        .fg-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(max(130px, calc((100% - 110px) / 6)), 1fr));
+          gap: 30px 22px;
+        }
+        @media (max-width: 640px) {
+          .fg-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px 14px;
+          }
+        }
+      `}</style>
       <div
         style={{
           display: 'flex',
@@ -352,13 +365,7 @@ export const FinishedShelfGrid = ({ books }: Props) => {
           )}
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(max(130px, calc((100% - 110px) / 6)), 1fr))',
-            gap: '30px 22px',
-          }}
-        >
+        <div className="fg-grid">
           {shown.map(book => (
             <button
               key={book.id}

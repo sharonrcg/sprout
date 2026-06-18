@@ -104,7 +104,7 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
     >
       <div
         className="rc-cover-wrap"
-        style={{ transition: 'transform 0.22s cubic-bezier(.2,.8,.3,1)', flexShrink: 0, alignSelf: 'center' }}
+        style={{ transition: 'transform 0.22s cubic-bezier(.2,.8,.3,1)', flexShrink: 0, alignSelf: 'stretch' }}
         onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-6px) rotate(-.6deg)')}
         onMouseLeave={e => (e.currentTarget.style.transform = '')}
       >
@@ -251,6 +251,10 @@ export const ReadingShelfGrid = ({ books }: Props) => {
         }
         .rc-cover-wrap {
           width: clamp(48px, 12vw, 92px);
+          display: flex;
+          align-items: center;
+          padding-right: 14px;
+          border-right: 1px solid var(--sp-line);
         }
         .rc-btn {
           display: inline-flex;
