@@ -2,6 +2,7 @@ import { Suspense, type ReactNode } from 'react'
 import { SidebarNav } from './SidebarNav'
 import { ShelfSkeleton } from './ShelfSkeleton'
 import { getUser } from '@/lib/supabase/getUser'
+import '@/app/css/Dashboard.css'
 
 interface Props {
   children: ReactNode
@@ -13,38 +14,20 @@ export const Dashboard = async ({ children }: Props) => {
   const userEmail = user?.email ?? null
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        height: '100vh',
-        overflow: 'hidden',
-        background: 'var(--sp-bg)',
-        fontFamily: 'var(--sp-body)',
-      }}
-    >
+    <div className="dash-layout">
       <SidebarNav userName={userName} userEmail={userEmail} />
 
-      <main
-        className="sp-main"
-        style={{
-          flex: 1,
-          padding: '36px 48px 32px',
-          overflowY: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      <main className="sp-main">
         <Suspense fallback={<ShelfSkeleton />}>
           {children}
         </Suspense>
-        <footer style={{ marginTop: 'auto', paddingTop: 48, textAlign: 'center' }}>
-          <p style={{ fontSize: 13, color: 'var(--sp-muted)', margin: 0, opacity: 0.7 }}>
+        <footer className="dash-footer">
+          <p>
             made by{' '}
             <a
               href="https://github.com/sharonrcg"
               target="_blank"
               rel="noopener noreferrer"
-              style={{ color: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}
             >
               @sharonrcg
             </a>

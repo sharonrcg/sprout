@@ -1,0 +1,30 @@
+.dash-layout {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--sp-bg);
+  font-family: var(--sp-body);
+}
+.sp-main {
+  flex: 1;
+  padding: 36px 48px 32px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.dash-footer {
+  margin-top: auto;
+  padding-top: 48px;
+  text-align: center;
+}
+.dash-footer p {
+  font-size: 13px;
+  color: var(--sp-muted);
+  margin: 0;
+  opacity: 0.7;
+}
+.dash-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Instrument_Serif, Hanken_Grotesk } from 'next/font/google'
 import './globals.css'
 
@@ -14,6 +14,10 @@ const hankenGrotesque = Hanken_Grotesk({
   weight: ['400', '500', '600', '700'],
   subsets: ['latin'],
 })
+
+export const viewport: Viewport = {
+  themeColor: '#FAF5EA',
+}
 
 export const metadata: Metadata = {
   title: 'sprout',

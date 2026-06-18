@@ -9,11 +9,12 @@ import { removeBook, updateTbrOrder, updateBookStatus } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import type { Book } from '@/lib/types'
+import '@/app/css/TbrShelfGrid.css'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
 const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
 
-const BookCover = ({ book, className }: { book: Book; className?: string }) => {
+const BookCover = ({ book }: { book: Book }) => {
   const src = book.cover_i
     ? coverUrl(book.cover_i)
     : book.isbn
@@ -21,32 +22,15 @@ const BookCover = ({ book, className }: { book: Book; className?: string }) => {
     : null
 
   return (
-    <div
-      className={className}
-      style={{
-        position: 'relative',
-        aspectRatio: '2/3',
-        borderRadius: 5,
-        overflow: 'hidden',
-        background: getCoverColor(book.title),
-        boxShadow: '0 4px 12px -4px rgba(45,42,32,0.4)',
-      }}
-    >
-      {src && <Image src={src} alt={book.title} fill sizes="54px" style={{ objectFit: 'cover', zIndex: 1 }} />}
+    <div className="tbr-cover" style={{ background: getCoverColor(book.title) }}>
+      {src && <Image src={src} alt={book.title} fill sizes="54px" style={{ objectFit: 'cover' }} />}
       {!src && (
-        <div style={{ position: 'absolute', inset: 0, padding: '10% 8%', color: '#fff' }}>
-          <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 9, lineHeight: 1.05, margin: 0 }}>{book.title}</p>
+        <div className="tbr-cover-fallback">
+          <p>{book.title}</p>
         </div>
       )}
     </div>
   )
-}
-
-const arrowBtn: React.CSSProperties = {
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  width: 26, height: 26, borderRadius: 7,
-  border: '1px solid var(--sp-line)', background: 'var(--sp-paper)',
-  color: 'var(--sp-muted)', cursor: 'pointer',
 }
 
 interface Props {
@@ -93,89 +77,11 @@ export const TbrShelfGrid = ({ books }: Props) => {
 
   return (
     <>
-      <style>{`
-        .tbr-cover {
-          width: clamp(32px, 8vw, 54px);
-          flex-shrink: 0;
-        }
-        .tbr-card { gap: 18px; }
-        .tbr-left {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-shrink: 0;
-          align-self: stretch;
-          padding-right: 14px;
-          border-right: 1px solid var(--sp-line);
-        }
-        .tbr-right {
-          display: flex;
-          align-items: center;
-          flex: 1;
-          min-width: 0;
-          gap: 8px;
-        }
-        .tbr-info { flex: 1; min-width: 0; }
-        .tbr-actions {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          flex-shrink: 0;
-        }
-        .tbr-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          padding: 4px 16px;
-          border-radius: 999px;
-          font-family: var(--sp-body);
-          font-weight: 600;
-          font-size: 14px;
-          border: none;
-          cursor: pointer;
-        }
-        .tbr-btn-finished {
-          background: var(--sp-sage);
-          color: #fff;
-          box-shadow: 0 8px 18px -8px var(--sp-sage);
-        }
-        .tbr-btn-reading {
-          background: var(--sp-clay);
-          color: #fff;
-          box-shadow: 0 8px 18px -8px var(--sp-clay);
-        }
-
-        @media (max-width: 899px) {
-          .tbr-card { align-items: stretch; gap: 14px; }
-          .tbr-left { align-items: center; gap: 8px; }
-          .tbr-right {
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: center;
-            gap: 8px;
-          }
-          .tbr-actions { justify-content: space-between; }
-          .tbr-btn { padding: 3px 10px; font-size: 13px; gap: 5px; }
-        }
-        @media (max-width: 640px) {
-          .tbr-rank { display: none; }
-        }
-      `}</style>
-
-      <div
-        style={{
-          display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-          gap: '18px 24px', marginBottom: 22, flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ flex: '1 1 360px', minWidth: 0 }}>
-          <p style={{ fontSize: 11, letterSpacing: '1.6px', textTransform: 'uppercase', fontWeight: 700, color: 'var(--sp-muted)', margin: '0 0 6px' }}>
-            The pile
-          </p>
-          <h1 style={{ fontFamily: 'var(--sp-disp)', fontWeight: 400, fontSize: 'clamp(32px, 4.4vw, 48px)', lineHeight: 1.06, color: 'var(--sp-ink)', margin: 0 }}>
-            Want to read
-          </h1>
-          <p style={{ color: 'var(--sp-muted)', fontSize: 15, marginTop: 8, marginBottom: 0 }}>
+      <div className="tbr-header">
+        <div className="tbr-header-text">
+          <p className="tbr-label">The pile</p>
+          <h1 className="tbr-heading">Want to read</h1>
+          <p className="tbr-subtitle">
             {items.length} {items.length === 1 ? 'book' : 'books'} on your list
           </p>
         </div>
@@ -183,78 +89,53 @@ export const TbrShelfGrid = ({ books }: Props) => {
       </div>
 
       {items.length === 0 ? (
-        <div
-          style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            textAlign: 'center', gap: 10, padding: '70px 24px', color: 'var(--sp-ink-soft)',
-          }}
-        >
-          <div style={{ width: 88, height: 88, borderRadius: 26, background: 'var(--sp-sage-soft)', color: 'var(--sp-sage)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+        <div className="tbr-empty">
+          <div className="tbr-empty-icon">
             <Bookmark size={40} />
           </div>
-          <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(22px, 5.5vw, 27px)', fontWeight: 400, color: 'var(--sp-ink)', margin: 0 }}>
-            Your list is empty
-          </h3>
-          <p style={{ maxWidth: 320, color: 'var(--sp-muted)', lineHeight: 1.5, margin: 0 }}>
+          <h3 className="tbr-empty-title">Your list is empty</h3>
+          <p className="tbr-empty-text">
             Add books you want to read and they&apos;ll queue up here.
           </p>
         </div>
       ) : (
-        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12, opacity: isPending ? 0.7 : 1, transition: 'opacity 0.15s' }}>
+        <ul className="tbr-list" style={{ opacity: isPending ? 0.7 : 1 }}>
           {items.map((book, i) => (
-            <li
-              key={book.id}
-              className="tbr-card"
-              style={{
-                display: 'flex',
-                alignItems: 'stretch',
-                padding: '14px 16px',
-                background: 'var(--sp-paper)',
-                border: '1px solid var(--sp-line)',
-                borderRadius: 20,
-                boxShadow: '0 2px 8px -3px rgba(45,42,32,0.22)',
-              }}
-            >
-              {/* LEFT: arrows + rank + cover */}
+            <li key={book.id} className="tbr-card">
               <div className="tbr-left">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flexShrink: 0 }}>
+                <div className="tbr-arrows">
                   <button
+                    className="tbr-arrow-btn"
                     onClick={() => move(i, -1)}
                     disabled={i === 0 || isPending}
                     aria-label="Move up"
-                    style={{ ...arrowBtn, opacity: i === 0 ? 0.3 : 1 }}
+                    style={{ opacity: i === 0 ? 0.3 : 1 }}
                   >
                     <ChevronUp size={14} />
                   </button>
                   <button
+                    className="tbr-arrow-btn"
                     onClick={() => move(i, 1)}
                     disabled={i === items.length - 1 || isPending}
                     aria-label="Move down"
-                    style={{ ...arrowBtn, opacity: i === items.length - 1 ? 0.3 : 1 }}
+                    style={{ opacity: i === items.length - 1 ? 0.3 : 1 }}
                   >
                     <ChevronDown size={14} />
                   </button>
                 </div>
-                <span className="tbr-rank" style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(20px, 5.5vw, 26px)', color: 'var(--sp-clay)', width: 28, textAlign: 'center', flexShrink: 0 }}>
-                  {i + 1}
-                </span>
-                <BookCover book={book} className="tbr-cover" />
+                <span className="tbr-rank">{i + 1}</span>
+                <BookCover book={book} />
               </div>
 
-              {/* RIGHT: info + actions */}
               <div className="tbr-right">
                 <div className="tbr-info">
-                  <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(17px, 4.5vw, 21px)', lineHeight: 1.14, color: 'var(--sp-ink)', margin: 0 }}>
-                    {book.title}
-                  </p>
+                  <p className="tbr-book-title">{book.title}</p>
                   {book.author && (
-                    <p style={{ fontSize: 13, color: 'var(--sp-muted)', marginTop: 3, marginBottom: 0 }}>
-                      {book.author}
-                    </p>
+                    <p className="tbr-book-author">{book.author}</p>
                   )}
                 </div>
                 <div className="tbr-actions">
-                  <div style={{ display: 'flex', gap: 6 }}>
+                  <div className="tbr-btn-group">
                     <button onClick={() => handleFinished(book.id)} disabled={isPending} className="tbr-btn tbr-btn-finished">
                       <Check size={14} /> Finished
                     </button>
@@ -263,14 +144,9 @@ export const TbrShelfGrid = ({ books }: Props) => {
                     </button>
                   </div>
                   <button
+                    className="tbr-delete-btn"
                     onClick={() => handleDelete(book.id)}
                     aria-label="Remove"
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      width: 34, height: 34, borderRadius: 9,
-                      border: '1px solid var(--sp-line)', background: 'var(--sp-paper)',
-                      color: 'var(--sp-muted)', cursor: 'pointer', flexShrink: 0,
-                    }}
                   >
                     <Trash2 size={15} />
                   </button>

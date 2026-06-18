@@ -7,9 +7,9 @@ import { Leaf, BookOpen, Check, Pencil, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { updateBook, removeBook } from '@/app/actions'
 import type { Book } from '@/lib/types'
+import '@/app/css/BookDetailModal.css'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
-
 const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
 
 const prettyDate = (d: string | null) => {
@@ -36,7 +36,7 @@ const LeafRating = ({ value, onChange, size = 24 }: {
           onMouseEnter={() => { if (interactive) setHovered(i) }}
           onMouseLeave={() => { if (interactive) setHovered(0) }}
           disabled={!interactive}
-          style={{ display: 'flex', padding: interactive ? 3 : 0, background: 'none', border: 'none', cursor: interactive ? 'pointer' : 'default' }}
+          className={interactive ? 'bdm-leaf-btn' : 'bdm-leaf-btn-view'}
         >
           <Leaf
             size={size}
@@ -52,18 +52,6 @@ const LeafRating = ({ value, onChange, size = 24 }: {
       ))}
     </div>
   )
-}
-
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '13px 15px', borderRadius: 14,
-  border: '1px solid var(--sp-line-2)', background: 'var(--sp-paper)',
-  fontSize: 15, color: 'var(--sp-ink)', fontFamily: 'var(--sp-body)',
-  outline: 'none', boxSizing: 'border-box',
-}
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 13, fontWeight: 600, color: 'var(--sp-ink-soft)',
-  display: 'block', marginBottom: 9,
 }
 
 interface Props {
@@ -116,161 +104,59 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
 
   return (
     <div className="bdm-overlay">
-      <style>{`
-        .bdm-overlay {
-          position: fixed;
-          top: 0; right: 0; bottom: 0; left: 0;
-          z-index: 100;
-          background: var(--sp-bg);
-          overflow-y: auto;
-        }
-        @media (min-width: 900px) {
-          .bdm-overlay { left: 240px; }
-        }
-        .bdm-content {
-          max-width: 880px;
-          padding: 36px 48px 72px;
-        }
-        .bdm-grid {
-          display: grid;
-          grid-template-columns: 280px 1fr;
-          gap: 40px;
-          align-items: start;
-        }
-        .bdm-cover-wrap {
-          width: 100%;
-        }
-        .bdm-body {
-          padding-top: 4px;
-          padding-right: 40px;
-        }
-        @media (max-width: 699px) {
-          .bdm-content {
-            padding: 36px 20px 72px;
-          }
-          .bdm-grid {
-            grid-template-columns: 1fr;
-            gap: 22px;
-          }
-          .bdm-left {
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            gap: 16px !important;
-          }
-          .bdm-cover-wrap {
-            width: 110px !important;
-            flex-shrink: 0;
-          }
-          .bdm-left-actions {
-            flex-direction: column !important;
-            gap: 8px !important;
-            padding-top: 4px;
-          }
-          .bdm-body {
-            padding-top: 0 !important;
-            padding-right: 0 !important;
-          }
-        }
-      `}</style>
-
       <div className="bdm-content">
-        {/* Back button */}
-        <button
-          onClick={onClose}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: 'none', border: 'none', cursor: 'pointer',
-            color: 'var(--sp-muted)', fontSize: 14, fontWeight: 600,
-            fontFamily: 'var(--sp-body)', padding: 0, marginBottom: 32,
-          }}
-        >
+        <button className="bdm-back-btn" onClick={onClose}>
           ← Back to shelf
         </button>
 
-        {/* ── delete confirm ── */}
         {confirming ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 480 }}>
-            <h3 style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(22px, 5.5vw, 27px)', fontWeight: 400, margin: 0, color: 'var(--sp-ink)' }}>
-              Remove this book?
-            </h3>
-            <p style={{ color: 'var(--sp-ink-soft)', lineHeight: 1.55, fontSize: 15, margin: 0 }}>
+          <div className="bdm-confirm">
+            <h3 className="bdm-confirm-title">Remove this book?</h3>
+            <p className="bdm-confirm-text">
               &ldquo;{book.title}&rdquo; will be taken off your shelf. This can&apos;t be undone.
             </p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => setConfirming(false)}
-                style={{
-                  padding: '12px 20px', borderRadius: 999,
-                  background: 'var(--sp-paper)', border: '1px solid var(--sp-line-2)',
-                  color: 'var(--sp-ink)', fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 15, cursor: 'pointer',
-                }}
-              >
+            <div className="bdm-confirm-actions">
+              <button className="bdm-keep-btn" onClick={() => setConfirming(false)}>
                 Keep it
               </button>
               <button
+                className="bdm-remove-btn"
                 onClick={handleDelete}
                 disabled={isPending}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  padding: '12px 20px', borderRadius: 999,
-                  background: 'none', border: '1px solid rgba(150,60,40,.4)',
-                  color: '#9a3d28', fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 15,
-                  cursor: 'pointer', opacity: isPending ? 0.6 : 1,
-                }}
+                style={{ opacity: isPending ? 0.6 : 1 }}
               >
                 <Trash2 size={15} /> Remove
               </button>
             </div>
           </div>
         ) : (
-          /* ── main layout ── */
           <div className="bdm-grid">
-
-            {/* left: cover + action buttons */}
-            <div className="bdm-left" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* left: cover + actions */}
+            <div className="bdm-left">
               <div
                 className="bdm-cover-wrap"
-                style={{
-                  position: 'relative', aspectRatio: '2/3',
-                  borderRadius: 12, overflow: 'hidden',
-                  background: getCoverColor(book.title),
-                  boxShadow: '0 10px 28px -12px rgba(45,42,32,0.4)',
-                }}
+                style={{ background: getCoverColor(book.title) }}
               >
-                {src && <Image src={src} alt={book.title} fill sizes="280px" style={{ objectFit: 'cover', zIndex: 1 }} />}
+                {src && <Image src={src} alt={book.title} fill sizes="280px" style={{ objectFit: 'cover' }} />}
                 {!src && (
-                  <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '11% 9%', color: '#fff' }}>
-                    <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 14, lineHeight: 1.05, margin: 0 }}>{book.title}</p>
-                    {book.author && <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.6px', opacity: 0.82, margin: 0 }}>{book.author}</p>}
+                  <div className="bdm-cover-fallback">
+                    <p className="bdm-cover-fallback-title">{book.title}</p>
+                    {book.author && <p className="bdm-cover-fallback-author">{book.author}</p>}
                   </div>
                 )}
-                <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none', background: 'linear-gradient(105deg, rgba(255,255,255,0.16) 0%, transparent 22%, transparent 78%, rgba(0,0,0,0.12) 100%)' }} />
-                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 7, zIndex: 2, pointerEvents: 'none', background: 'linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0))' }} />
+                <div className="bdm-cover-shine" />
+                <div className="bdm-cover-spine" />
               </div>
 
               {!editing && (
-                <div className="bdm-left-actions" style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    onClick={() => setEditing(true)}
-                    style={{
-                      flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-                      padding: '10px 16px', borderRadius: 999,
-                      background: 'var(--sp-sage)', color: '#fff',
-                      fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 14,
-                      border: 'none', cursor: 'pointer', boxShadow: '0 8px 18px -8px var(--sp-sage)',
-                    }}
-                  >
+                <div className="bdm-left-actions">
+                  <button className="bdm-edit-btn" onClick={() => setEditing(true)}>
                     <Pencil size={14} /> Edit
                   </button>
                   <button
+                    className="bdm-delete-btn"
                     onClick={() => setConfirming(true)}
                     aria-label="Remove book"
-                    style={{
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      width: 40, height: 40, borderRadius: 999, flexShrink: 0,
-                      background: 'none', border: '1px solid rgba(150,60,40,0.3)',
-                      color: '#9a3d28', cursor: 'pointer',
-                    }}
                   >
                     <Trash2 size={15} />
                   </button>
@@ -280,106 +166,72 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
 
             {/* right: body */}
             <div className="bdm-body">
-              <h1
-                style={{
-                  fontFamily: 'var(--sp-disp)', fontWeight: 400,
-                  fontSize: 'clamp(26px, 3.5vw, 46px)', lineHeight: 1.02,
-                  color: 'var(--sp-ink)', margin: 0,
-                }}
-              >
-                {book.title}
-              </h1>
+              <h1 className="bdm-book-title">{book.title}</h1>
               {book.author && (
-                <p style={{ fontSize: 'clamp(15px, 3.8vw, 18px)', color: 'var(--sp-muted)', marginTop: 6, marginBottom: 0 }}>
-                  {book.author}
-                </p>
+                <p className="bdm-book-author">{book.author}</p>
               )}
 
-              {/* view mode */}
               {!editing && (
                 <>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, margin: '22px 0 18px', flexWrap: 'wrap' }}>
+                  <div className="bdm-view-rating">
                     <LeafRating value={book.rating ?? 0} size={22} />
                   </div>
-                  {book.finished_at && (
-                    <div style={{ display: 'flex', gap: 22, color: 'var(--sp-ink-soft)', fontSize: 14.5, fontWeight: 600, marginBottom: 16 }}>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                        <Check size={16} style={{ color: 'var(--sp-sage)' }} />
-                        Finished {prettyDate(book.finished_at)}
-                        <BookOpen size={16} style={{ color: 'var(--sp-sage)', marginLeft: '12px' }} />
-                        {book.page_count ? `${book.page_count} pages` : 'Page count unknown'}
-                      </span>
-                    </div>
-                  )}
+                  <div className="bdm-view-meta">
+                    <span className="bdm-view-meta-item">
+                      <Check size={16} style={{ color: 'var(--sp-sage)' }} />
+                      {book.finished_at ? `Finished ${prettyDate(book.finished_at)}` : 'Finished date unknown'}
+                      <BookOpen size={16} style={{ color: 'var(--sp-sage)', marginLeft: 12 }} />
+                      {book.page_count ? `${book.page_count} pages` : 'Page count unknown'}
+                    </span>
+                  </div>
                   <div>
-                    <p style={{ fontSize: 11, letterSpacing: '1.6px', textTransform: 'uppercase', fontWeight: 700, color: 'var(--sp-muted)', margin: '0 0 10px' }}>
-                      Your thoughts
-                    </p>
+                    <p className="bdm-notes-label">Your thoughts</p>
                     {book.notes ? (
-                      <p style={{ fontSize: 16, lineHeight: 1.65, color: 'var(--sp-ink-soft)', margin: 0 }}>
-                        {book.notes}
-                      </p>
+                      <p className="bdm-notes-text">{book.notes}</p>
                     ) : (
-                      <p style={{ fontSize: 15, color: 'var(--sp-faint)', fontStyle: 'italic', margin: 0 }}>
-                        No notes yet — tap edit to add some.
-                      </p>
+                      <p className="bdm-notes-empty">No notes yet — tap edit to add some.</p>
                     )}
                   </div>
                 </>
               )}
 
-              {/* edit mode */}
               {editing && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 22 }}>
-                  <div>
-                    <label style={labelStyle}>Rating</label>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                <div className="bdm-edit-form">
+                  <div className="bdm-field-group">
+                    <label className="bdm-field-label">Rating</label>
+                    <div className="bdm-field-rating">
                       <LeafRating value={rating} onChange={setRating} size={28} />
                     </div>
                   </div>
-                  <div>
-                    <label style={labelStyle}>Date finished</label>
+                  <div className="bdm-field-group">
+                    <label className="bdm-field-label">Date finished <span style={{ fontWeight: 400, color: 'var(--sp-faint)' }}>(optional)</span></label>
                     <input
                       type="date"
                       value={finishedAt}
                       onChange={e => setFinishedAt(e.target.value)}
-                      style={inputStyle}
+                      className="bdm-field-input"
                     />
                   </div>
-                  <div>
-                    <label style={labelStyle}>Your thoughts</label>
+                  <div className="bdm-field-group">
+                    <label className="bdm-field-label">Your thoughts</label>
                     <textarea
                       value={notes}
                       onChange={e => setNotes(e.target.value)}
                       placeholder="What stayed with you?"
                       rows={4}
-                      style={{ ...inputStyle, resize: 'vertical', minHeight: 96, lineHeight: 1.5 }}
+                      className="bdm-field-textarea"
                     />
                   </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <button
-                      type="button"
-                      onClick={resetEdit}
-                      style={{
-                        padding: '12px 20px', borderRadius: 999,
-                        background: 'var(--sp-paper)', border: '1px solid var(--sp-line-2)',
-                        color: 'var(--sp-ink)', fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 15, cursor: 'pointer',
-                      }}
-                    >
+                  <div className="bdm-edit-actions">
+                    <button type="button" className="bdm-cancel-btn" onClick={resetEdit}>
                       Cancel
                     </button>
                     <button
                       type="button"
+                      className="bdm-save-btn"
                       onClick={handleSave}
                       disabled={isPending}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 8,
-                        padding: '12px 22px', borderRadius: 999,
-                        background: 'var(--sp-clay)', color: '#fff',
-                        fontFamily: 'var(--sp-body)', fontWeight: 600, fontSize: 15,
-                        border: 'none', cursor: 'pointer', boxShadow: '0 8px 18px -8px var(--sp-clay)',
-                        opacity: isPending ? 0.7 : 1,
-                      }}
+                      style={{ opacity: isPending ? 0.7 : 1 }}
                     >
                       <Check size={16} />
                       {isPending ? 'Saving…' : 'Save changes'}

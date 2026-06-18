@@ -7,6 +7,7 @@ import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { BookDetailModal } from '@/app/Components/BookDetailModal'
 import type { Book } from '@/lib/types'
+import '@/app/css/FinishedShelfGrid.css'
 
 const SORT_OPTIONS = {
   recent: {
@@ -29,15 +30,12 @@ const SORT_OPTIONS = {
 type SortKey = keyof typeof SORT_OPTIONS
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
-
-const getCoverColor = (title: string) => {
-  return COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
-}
+const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
 
 const LeafRating = ({ value }: { value: number | null }) => {
   const v = value ?? 0
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginTop: 4 }}>
+    <div className="fg-leaf-rating">
       {[1, 2, 3, 4, 5].map(i => (
         <Leaf
           key={i}
@@ -61,71 +59,18 @@ const BookCoverImage = ({ book }: { book: Book }) => {
     : null
 
   return (
-    <div
-      style={{
-        position: 'relative',
-        aspectRatio: '2 / 3',
-        borderRadius: 9,
-        overflow: 'hidden',
-        background: getCoverColor(book.title),
-        boxShadow: '0 10px 22px -10px rgba(45,42,32,0.5)',
-      }}
-    >
+    <div className="fg-book-cover" style={{ background: getCoverColor(book.title) }}>
       {src && (
-        <Image src={src} alt={book.title} fill sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 200px" style={{ objectFit: 'cover', zIndex: 1 }} />
+        <Image src={src} alt={book.title} fill sizes="(max-width: 640px) 45vw, (max-width: 1024px) 22vw, 200px" style={{ objectFit: 'cover' }} />
       )}
       {!src && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            padding: '11% 9%',
-            color: '#fff',
-          }}
-        >
-          <p style={{ fontFamily: 'var(--sp-disp)', fontSize: 14, lineHeight: 1.05, margin: 0 }}>
-            {book.title}
-          </p>
-          {book.author && (
-            <p
-              style={{
-                fontSize: 9,
-                textTransform: 'uppercase',
-                letterSpacing: '0.6px',
-                opacity: 0.82,
-                margin: 0,
-              }}
-            >
-              {book.author}
-            </p>
-          )}
+        <div className="fg-cover-fallback">
+          <p className="fg-cover-fallback-title">{book.title}</p>
+          {book.author && <p className="fg-cover-fallback-author">{book.author}</p>}
         </div>
       )}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 2,
-          pointerEvents: 'none',
-          background:
-            'linear-gradient(105deg, rgba(255,255,255,0.16) 0%, transparent 22%, transparent 78%, rgba(0,0,0,0.12) 100%)',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 7,
-          zIndex: 2,
-          pointerEvents: 'none',
-          background: 'linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0))',
-        }}
-      />
+      <div className="fg-cover-shine" />
+      <div className="fg-cover-spine" />
     </div>
   )
 }
@@ -156,210 +101,70 @@ export const FinishedShelfGrid = ({ books }: Props) => {
 
   return (
     <>
-      <style>{`
-        .fg-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(max(130px, calc((100% - 110px) / 6)), 1fr));
-          gap: 30px 22px;
-        }
-        @media (max-width: 640px) {
-          .fg-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px 14px;
-          }
-        }
-      `}</style>
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: '18px 24px',
-          marginBottom: 22,
-          flexWrap: 'wrap',
-        }}
-      >
-        <div style={{ flex: '1 1 360px', minWidth: 0 }}>
-          <p
-            style={{
-              fontSize: 11,
-              letterSpacing: '1.6px',
-              textTransform: 'uppercase',
-              fontWeight: 700,
-              color: 'var(--sp-muted)',
-              marginBottom: 6,
-              margin: '0 0 6px',
-            }}
-          >
-            Your library
-          </p>
-          <h1
-            style={{
-              fontFamily: 'var(--sp-disp)',
-              fontWeight: 400,
-              fontSize: 'clamp(32px, 4.4vw, 48px)',
-              lineHeight: 1.06,
-              color: 'var(--sp-ink)',
-              margin: 0,
-            }}
-          >
-            Recently finished
-          </h1>
-          <p style={{ color: 'var(--sp-muted)', fontSize: 15, marginTop: 8, marginBottom: 0 }}>
+      <div className="fg-header">
+        <div className="fg-header-text">
+          <p className="fg-label">Your library</p>
+          <h1 className="fg-heading">Recently finished</h1>
+          <p className="fg-subtitle">
             {books.length} {books.length === 1 ? 'book' : 'books'} on the shelf &middot; {thisYear} read in {year}
           </p>
         </div>
         <AddBookModal />
       </div>
 
-      <div style={{ display: 'flex', gap: 12, marginBottom: 26, flexWrap: 'wrap' }}>
-        <div
-          style={{
-            flex: 1,
-            minWidth: 220,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 10,
-            padding: '12px 16px',
-            borderRadius: 20,
-            background: 'var(--sp-paper)',
-            border: '1px solid var(--sp-line-2)',
-            color: 'var(--sp-muted)',
-          }}
-        >
+      <div className="fg-controls">
+        <div className="fg-search">
           <Search size={18} style={{ flexShrink: 0 }} />
           <input
             type="search"
             placeholder="Search your shelf — title, author…"
             value={q}
             onChange={e => setQ(e.target.value)}
-            style={{
-              flex: 1,
-              border: 'none',
-              background: 'none',
-              outline: 'none',
-              fontSize: 15,
-              color: 'var(--sp-ink)',
-              fontFamily: 'var(--sp-body)',
-            }}
+            className="fg-search-input"
           />
           {q && (
             <button
               type="button"
               onClick={() => setQ('')}
               aria-label="Clear search"
-              style={{ display: 'flex', padding: 0, color: 'var(--sp-muted)', cursor: 'pointer' }}
+              className="fg-search-clear"
             >
               <X size={16} />
             </button>
           )}
         </div>
 
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 14px',
-            borderRadius: 20,
-            background: 'var(--sp-paper)',
-            border: '1px solid var(--sp-line-2)',
-          }}
-        >
+        <div className="fg-sort">
           <select
             value={sort}
             onChange={e => setSort(e.target.value as SortKey)}
-            style={{
-              appearance: 'none',
-              border: 'none',
-              background: 'none',
-              outline: 'none',
-              fontSize: 14.5,
-              fontWeight: 600,
-              color: 'var(--sp-ink)',
-              padding: '13px 28px 13px 0',
-              cursor: 'pointer',
-              fontFamily: 'var(--sp-body)',
-            }}
+            className="fg-sort-select"
           >
             {(Object.entries(SORT_OPTIONS) as [SortKey, (typeof SORT_OPTIONS)[SortKey]][]).map(
               ([k, v]) => (
-                <option key={k} value={k}>
-                  {v.label}
-                </option>
+                <option key={k} value={k}>{v.label}</option>
               )
             )}
           </select>
-          <ChevronDown
-            size={15}
-            style={{
-              position: 'absolute',
-              right: 12,
-              pointerEvents: 'none',
-              color: 'var(--sp-muted)',
-            }}
-          />
+          <ChevronDown size={15} className="fg-sort-chevron" />
         </div>
       </div>
 
       {shown.length === 0 ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: 10,
-            padding: '70px 24px',
-            color: 'var(--sp-ink-soft)',
-          }}
-        >
-          <div
-            style={{
-              width: 88,
-              height: 88,
-              borderRadius: 26,
-              background: 'var(--sp-sage-soft)',
-              color: 'var(--sp-sage)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 6,
-            }}
-          >
+        <div className="fg-empty">
+          <div className="fg-empty-icon">
             <Search size={40} />
           </div>
-          <h3
-            style={{
-              fontFamily: 'var(--sp-disp)',
-              fontSize: 'clamp(22px, 5.5vw, 27px)',
-              fontWeight: 400,
-              color: 'var(--sp-ink)',
-              margin: 0,
-            }}
-          >
+          <h3 className="fg-empty-title">
             {q ? 'Nothing matched' : "You'll get there"}
           </h3>
-          <p style={{ maxWidth: 320, color: 'var(--sp-muted)', lineHeight: 1.5, margin: 0 }}>
+          <p className="fg-empty-text">
             {q
               ? 'No books match that search. Try a different title or author.'
               : "Add the first book you've finished and it'll bloom here."}
           </p>
           {q && (
-            <button
-              onClick={() => setQ('')}
-              style={{
-                marginTop: 8,
-                padding: '10px 20px',
-                borderRadius: 999,
-                background: 'var(--sp-sage)',
-                color: '#fff',
-                fontWeight: 600,
-                fontSize: 14,
-                cursor: 'pointer',
-                border: 'none',
-              }}
-            >
+            <button onClick={() => setQ('')} className="fg-clear-btn">
               Clear search
             </button>
           )}
@@ -370,24 +175,15 @@ export const FinishedShelfGrid = ({ books }: Props) => {
             <button
               key={book.id}
               onClick={() => setSelectedBook(book)}
-              style={{
-                display: 'flex', flexDirection: 'column', gap: 11,
-                background: 'none', border: 'none', cursor: 'pointer',
-                textAlign: 'left', padding: 0,
-              }}
+              className="fg-book-btn"
             >
-              <div style={{ transition: 'transform 0.22s cubic-bezier(.2,.8,.3,1)' }}
-                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-6px) rotate(-.6deg)')}
-                onMouseLeave={e => (e.currentTarget.style.transform = '')}
-              >
+              <div className="fg-cover-wrap">
                 <BookCoverImage book={book} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <span style={{ fontFamily: 'var(--sp-disp)', fontSize: 'clamp(15px, 3.8vw, 18px)', lineHeight: 1.08, color: 'var(--sp-ink)' }}>
-                  {book.title}
-                </span>
+              <div className="fg-book-info">
+                <span className="fg-book-title">{book.title}</span>
                 {book.author && (
-                  <span style={{ fontSize: 12.5, color: 'var(--sp-muted)' }}>{book.author}</span>
+                  <span className="fg-book-author">{book.author}</span>
                 )}
                 <LeafRating value={book.rating} />
               </div>
