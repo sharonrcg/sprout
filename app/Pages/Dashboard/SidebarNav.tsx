@@ -3,14 +3,15 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Leaf, CheckCheck, BookOpen, ListOrdered, Plus, X } from 'lucide-react'
+import { Leaf, CheckCheck, BookOpen, ListOrdered, Plus, X, User } from 'lucide-react'
 import { AddBookForm, type Mode } from '@/app/Components/AddBookForm'
 import '@/app/css/SidebarNav.css'
 
 const NAV = [
   { href: '/finished', label: 'Finished', Icon: CheckCheck },
   { href: '/reading', label: 'Reading', Icon: BookOpen },
-  { href: '/tbr', label: 'TBR', Icon: ListOrdered },
+  { href: '/tbr', label: 'Want to read', Icon: ListOrdered },
+  { href: '/you', label: 'You', Icon: User },
 ]
 
 const pathnameToMode = (pathname: string): Mode => {
@@ -80,7 +81,7 @@ export const SidebarNav = ({ userName, userEmail }: Props) => {
           </div>
         </div>
       </aside>
-
+      
       {/* ── Mobile FAB ── */}
       <button className="sp-fab" onClick={openAddBook} aria-label="Add a book">
         <Plus size={26} />

@@ -3,7 +3,7 @@
 import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Bookmark, ChevronUp, ChevronDown, Trash2, Check, BookOpen } from 'lucide-react'
+import { Bookmark, ChevronUp, ChevronDown, Trash2, Check, BookOpen, Leaf } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { removeBook, updateTbrOrder, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
@@ -11,6 +11,7 @@ import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import { FinishBookModal } from '@/app/Components/FinishBookModal'
 import type { Book } from '@/lib/types'
 import '@/app/css/TbrShelfGrid.css'
+import '@/app/globals.css'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
 const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
@@ -73,16 +74,25 @@ export const TbrShelfGrid = ({ books }: Props) => {
 
   return (
     <>
-      <div className="tbr-header">
-        <div className="tbr-header-text">
-          <p className="tbr-label">The pile</p>
-          <h1 className="tbr-heading">Want to read</h1>
-          <p className="tbr-subtitle">
-            {items.length} {items.length === 1 ? 'book' : 'books'} on your list
-          </p>
+      <div className="header-logo">
+        <div className="sp-mobile-top">
+          <span className="sb-logo-icon">
+            <Leaf size={40} />
+          </span>
         </div>
-        <AddBookModal />
+
+        <div className="tbr-header">
+          <div className="tbr-header-text">
+            <p className="tbr-label">The pile</p>
+            <h1 className="tbr-heading">Want to read</h1>
+            <p className="tbr-subtitle">
+              {items.length} {items.length === 1 ? 'book' : 'books'} on your list
+            </p>
+          </div>
+          <AddBookModal />
+        </div>
       </div>
+
 
       {items.length === 0 ? (
         <div className="tbr-empty">

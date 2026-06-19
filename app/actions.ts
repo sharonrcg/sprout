@@ -112,6 +112,31 @@ export const finishBook = async (
   if (error) throw new Error(error.message)
 }
 
+export const updateUserName = async (name: string): Promise<void> => {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({ data: { full_name: name } })
+  if (error) throw new Error(error.message)
+}
+
+export const updateUserEmail = async (email: string): Promise<void> => {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({ email })
+  if (error) throw new Error(error.message)
+}
+
+export const updateUserPassword = async (password: string): Promise<void> => {
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({ password })
+  if (error) throw new Error(error.message)
+}
+
+export const deleteUserAccount = async (): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+  await supabase.from('books').delete().eq('user_id', user.id)
+  await supabase.auth.signOut()
+}
+
 export const addBook = async (input: AddBookInput): Promise<Book> => {
   const [supabase, user] = await Promise.all([createClient(), getUser()])
   if (!user) throw new Error('Not authenticated')

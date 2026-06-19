@@ -1,0 +1,317 @@
+/* ── Page header ── */
+.you-header {
+  margin-bottom: 20px;
+}
+.you-eyebrow {
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--sp-muted);
+  margin: 0 0 6px;
+}
+.you-heading {
+  font-family: var(--sp-disp);
+  font-weight: 400;
+  font-size: clamp(32px, 4.4vw, 48px);
+  line-height: 1.06;
+  color: var(--sp-ink);
+  margin: 0;
+}
+
+/* ── Profile card ── */
+.you-profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--sp-paper);
+  border: 1px solid var(--sp-line);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--sp-shadow-sm);
+  margin-bottom: 30px;
+}
+.you-avatar {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sp-clay), var(--sp-clay-deep));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sp-disp);
+  font-size: 34px;
+  flex: 0 0 auto;
+  box-shadow: 0 10px 22px -8px var(--sp-clay);
+}
+.you-pid h2 {
+  font-family: var(--sp-disp);
+  font-size: 30px;
+  font-weight: 400;
+  margin: 0;
+  color: var(--sp-ink);
+}
+.you-pid-email {
+  color: var(--sp-muted);
+  font-size: 14.5px;
+  margin: 2px 0 0;
+}
+.you-mini {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.you-mini span {
+  font-size: 13.5px;
+  color: var(--sp-ink-soft);
+}
+.you-mini b {
+  font-family: var(--sp-disp);
+  font-size: 18px;
+  color: var(--sp-ink);
+  margin-right: 3px;
+}
+
+/* ── Section ── */
+.you-section { margin-bottom: 30px; }
+.you-section-label {
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--sp-muted);
+  margin: 0 0 12px;
+}
+
+/* ── Setting row ── */
+.you-set-row {
+  background: var(--sp-paper);
+  border: 1px solid var(--sp-line);
+  border-radius: 16px;
+  padding: 20px 22px;
+  margin-bottom: 12px;
+  box-shadow: var(--sp-shadow-sm);
+}
+.you-set-rowhead {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 16px;
+}
+.you-set-ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--sp-bg-2);
+  color: var(--sp-sage-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+.you-set-title {
+  font-size: 16px;
+  display: block;
+  color: var(--sp-ink);
+}
+.you-set-sub {
+  font-size: 13.5px;
+  color: var(--sp-muted);
+  display: block;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* ── Inputs ── */
+.you-input {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 13px;
+  border: 1px solid var(--sp-line-2);
+  background: var(--sp-paper);
+  font-size: 15px;
+  color: var(--sp-ink);
+  font-family: var(--sp-body);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.you-input:focus {
+  border-color: var(--sp-sage);
+  box-shadow: 0 0 0 3px var(--sp-sage-soft);
+}
+
+/* ── Inline row (email) ── */
+.you-inline { display: flex; gap: 10px; }
+.you-inline .you-input { flex: 1; }
+
+/* ── Password grid ── */
+.you-pw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+/* ── Action row ── */
+.you-actionrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+/* ── Status messages ── */
+.you-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--sp-sage-deep);
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+.you-err {
+  display: block;
+  color: #9a3d28;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* ── Buttons ── */
+.you-btn-sage {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--sp-sage);
+  color: #fff;
+  font-family: var(--sp-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 18px -8px var(--sp-sage);
+  white-space: nowrap;
+}
+.you-btn-sage:disabled { opacity: 0.5; cursor: default; }
+.you-btn-ghost {
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--sp-paper);
+  border: 1px solid var(--sp-line-2);
+  color: var(--sp-ink);
+  font-family: var(--sp-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.you-btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: none;
+  border: 1px solid rgba(150, 60, 40, 0.4);
+  color: #9a3d28;
+  font-family: var(--sp-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.you-btn-danger-filled {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: #9a3d28;
+  border: none;
+  color: #fff;
+  font-family: var(--sp-body);
+  font-weight: 600;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.you-btn-danger-filled:disabled { opacity: 0.5; cursor: default; }
+
+.you-btn-signout {
+
+  padding: 11px 18px;
+  border-radius: 999px;
+  color: var(--sp-clay);
+  font-family: var(--sp-body);
+  font-weight: 800;
+  font-size: 15px;
+  border: 1px solid var(--sp-clay);
+  cursor: pointer;
+  white-space: nowrap;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+/* ── Danger zone icon ── */
+.you-danger .you-set-ico {
+  background: rgba(150, 60, 40, 0.1);
+  color: #9a3d28;
+}
+
+/* ── Sign-off ── */
+.you-signoff {
+  font-family: var(--sp-disp);
+  font-size: 24px;
+  color: var(--sp-muted);
+  text-align: center;
+  padding: 20px 0 6px;
+}
+
+/* ── Delete confirmation overlay ── */
+.you-del-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(40, 34, 22, 0.42);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.you-del-inner {
+  width: 100%;
+  max-width: 440px;
+  background: var(--sp-bg);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 24px 48px -12px rgba(45, 42, 32, 0.45);
+}
+.you-del-title {
+  font-family: var(--sp-disp);
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--sp-ink);
+  margin: 0 0 12px;
+}
+.you-del-text {
+  color: var(--sp-ink-soft);
+  line-height: 1.55;
+  font-size: 15px;
+  margin: 0;
+}
+.you-del-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .you-profile { flex-direction: column; text-align: center; align-items: center; }
+  .you-mini { justify-content: center; }
+  .you-pw-grid { grid-template-columns: 1fr; }
+  .you-inline { flex-direction: column; }
+  .you-del-actions { flex-direction: column-reverse; }
+  .you-del-actions .you-btn-ghost,
+  .you-del-actions .you-btn-danger-filled { width: 100%; justify-content: center; }
+  .you-btn-sage { width: 100%; }
+}

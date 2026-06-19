@@ -8,6 +8,7 @@ import { AddBookModal } from '@/app/Components/AddBookModal'
 import { BookDetailModal } from '@/app/Components/BookDetailModal'
 import type { Book } from '@/lib/types'
 import '@/app/css/FinishedShelfGrid.css'
+import '@/app/globals.css'
 
 const SORT_OPTIONS = {
   recent: {
@@ -83,11 +84,6 @@ export const FinishedShelfGrid = ({ books }: Props) => {
   const [sort, setSort] = useState<SortKey>('recent')
   const [selectedBook, setSelectedBook] = useState<Book | null>(null)
 
-  const year = new Date().getFullYear()
-  const thisYear = books.filter(b =>
-    b.finished_at?.startsWith(String(year))
-  ).length
-
   const shown = useMemo(() => {
     const lower = q.toLowerCase()
     const filtered = q
@@ -100,15 +96,22 @@ export const FinishedShelfGrid = ({ books }: Props) => {
 
   return (
     <>
-      <div className="fg-header">
-        <div className="fg-header-text">
-          <p className="fg-label">Your library</p>
-          <h1 className="fg-heading">Recently finished</h1>
-          <p className="fg-subtitle">
-            {books.length} {books.length === 1 ? 'book' : 'books'} on the shelf &middot; {thisYear} read in {year}
-          </p>
+      <div className="header-logo">
+        <div className="sp-mobile-top">
+          <span className="sb-logo-icon">
+            <Leaf size={40} />
+          </span>
         </div>
-        <AddBookModal />
+        <div className="fg-header">
+          <div className="fg-header-text">
+            <p className="fg-label">Your library</p>
+            <h1 className="fg-heading">Recently finished</h1>
+            <p className="fg-subtitle">
+              {books.length} {books.length === 1 ? 'book' : 'books'} on the shelf
+            </p>
+          </div>
+          <AddBookModal />
+        </div>
       </div>
 
       <div className="fg-controls">
@@ -155,12 +158,12 @@ export const FinishedShelfGrid = ({ books }: Props) => {
             <Search size={40} />
           </div>
           <h3 className="fg-empty-title">
-            {q ? 'Nothing matched' : "You'll get there"}
+            {q ? 'Nothing matched' : "Nothing here yet"}
           </h3>
           <p className="fg-empty-text">
             {q
               ? 'No books match that search. Try a different title or author.'
-              : "Add the first book you've finished and it'll bloom here."}
+              : "Add a book you've finished and it'll appear here."}
           </p>
           {q && (
             <button onClick={() => setQ('')} className="fg-clear-btn">

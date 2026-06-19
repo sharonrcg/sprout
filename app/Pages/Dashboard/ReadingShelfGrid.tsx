@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { BarChart2, BookOpen, Check, Trash2 } from 'lucide-react'
+import { BarChart2, BookOpen, Check, Leaf, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { removeBook, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
@@ -11,6 +11,7 @@ import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import { FinishBookModal } from '@/app/Components/FinishBookModal'
 import type { Book } from '@/lib/types'
 import '@/app/css/ReadingShelfGrid.css'
+import '@/app/globals.css'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
 const getCoverColor = (title: string) => COVER_COLORS[title.charCodeAt(0) % COVER_COLORS.length]
@@ -126,15 +127,22 @@ export const ReadingShelfGrid = ({ books }: Props) => {
 
   return (
     <>
-      <div className="rc-header">
-        <div className="rc-header-text">
-          <p className="rc-label">In progress</p>
-          <h1 className="rc-heading">Currently reading</h1>
-          <p className="rc-subtitle">
-            {books.length} {books.length === 1 ? 'book' : 'books'} on your nightstand
-          </p>
+      <div className="header-logo">
+        <div className="sp-mobile-top">
+          <span className="sb-logo-icon">
+            <Leaf size={40} />
+          </span>
         </div>
-        <AddBookModal />
+        <div className="rc-header">
+          <div className="rc-header-text">
+            <p className="rc-label">In progress</p>
+            <h1 className="rc-heading">Currently reading</h1>
+            <p className="rc-subtitle">
+              {books.length} {books.length === 1 ? 'book' : 'books'} on your nightstand
+            </p>
+          </div>
+          <AddBookModal />
+        </div>
       </div>
 
       {books.length === 0 ? (

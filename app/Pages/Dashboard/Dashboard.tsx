@@ -1,6 +1,6 @@
 import { Suspense, type ReactNode } from 'react'
 import { SidebarNav } from './SidebarNav'
-import { ShelfSkeleton } from './ShelfSkeleton'
+import { LoadingSpinner } from './LoadingSpinner'
 import { getUser } from '@/lib/supabase/getUser'
 import '@/app/css/Dashboard.css'
 
@@ -18,12 +18,12 @@ export const Dashboard = async ({ children }: Props) => {
       <SidebarNav userName={userName} userEmail={userEmail} />
 
       <main className="sp-main">
-        <Suspense fallback={<ShelfSkeleton />}>
+        <Suspense fallback={<LoadingSpinner />}>
           {children}
         </Suspense>
         <footer className="dash-footer">
           <p>
-            made by{' '}
+            sprout - made by{' '}
             <a
               href="https://github.com/sharonrcg"
               target="_blank"
