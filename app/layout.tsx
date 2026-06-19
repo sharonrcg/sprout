@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Instrument_Serif, Hanken_Grotesk } from 'next/font/google'
+import { ServiceWorkerRegistration } from '@/app/Components/ServiceWorkerRegistration'
 import './globals.css'
 
 const instrumentSerif = Instrument_Serif({
@@ -30,7 +31,10 @@ const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => (
     lang="en"
     className={`${instrumentSerif.variable} ${hankenGrotesque.variable} h-full antialiased`}
   >
-    <body className="min-h-full flex flex-col">{children}</body>
+    <body className="min-h-full flex flex-col">
+    <ServiceWorkerRegistration />
+    {children}
+  </body>
   </html>
 )
 
