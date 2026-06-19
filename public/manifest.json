@@ -1,0 +1,16 @@
+{
+  "name": "sprout",
+  "short_name": "sprout",
+  "description": "A cozy home for the books you love",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#FAF5EA",
+  "theme_color": "#FAF5EA",
+  "icons": [
+    {
+      "src": "/sproutlogo.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}

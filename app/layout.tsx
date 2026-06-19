@@ -22,6 +22,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: 'sprout',
   description: 'A cozy home for the books you love',
+  manifest: '/manifest.json',
 }
 
 const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => (
