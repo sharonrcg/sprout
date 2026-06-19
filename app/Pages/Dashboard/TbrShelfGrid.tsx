@@ -3,7 +3,25 @@
 import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Bookmark, ChevronUp, ChevronDown, Trash2, Check, BookOpen, Leaf } from 'lucide-react'
+import { Bookmark, GripVertical, Trash2, Check, BookOpen, Leaf } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { removeBook, updateTbrOrder, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
@@ -35,6 +53,76 @@ const BookCover = ({ book }: { book: Book }) => {
   )
 }
 
+const SortableBookItem = ({
+  book,
+  index,
+  isPending,
+  onFinish,
+  onProgress,
+  onDelete,
+}: {
+  book: Book
+  index: number
+  isPending: boolean
+  onFinish: (book: Book) => void
+  onProgress: (book: Book) => void
+  onDelete: (id: string) => void
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: book.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 10 : undefined,
+    position: isDragging ? ('relative' as const) : undefined,
+  }
+
+  return (
+    <li ref={setNodeRef} style={style} className="tbr-card">
+      <div className="tbr-left">
+        <button
+          className="tbr-drag-handle"
+          {...listeners}
+          {...attributes}
+          aria-label="Drag to reorder"
+          tabIndex={0}
+        >
+          <GripVertical size={16} />
+        </button>
+        <span className="tbr-rank">{index + 1}</span>
+        <BookCover book={book} />
+      </div>
+
+      <div className="tbr-right">
+        <div className="tbr-info">
+          <p className="tbr-book-title">{book.title}</p>
+          {book.author && (
+            <p className="tbr-book-author">{book.author}</p>
+          )}
+        </div>
+        <div className="tbr-actions">
+          <div className="tbr-btn-group">
+            <button onClick={() => onProgress(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
+              <BookOpen size={14} /> <span className="tbr-btn-label">Reading</span>
+            </button>
+            <button onClick={() => onFinish(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
+              <Check size={14} /> <span className="tbr-btn-label">Finished</span>
+            </button>
+          </div>
+          <button
+            className="tbr-delete-btn"
+            onClick={() => onDelete(book.id)}
+            aria-label="Remove"
+          >
+            <Trash2 size={15} />
+          </button>
+        </div>
+      </div>
+    </li>
+  )
+}
+
 interface Props {
   books: Book[]
 }
@@ -50,10 +138,18 @@ export const TbrShelfGrid = ({ books }: Props) => {
     setItems([...books].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)))
   }, [books])
 
-  const move = (index: number, dir: -1 | 1) => {
-    const next = [...items]
-    const swapIdx = index + dir
-    ;[next[index], next[swapIdx]] = [next[swapIdx], next[index]]
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const oldIndex = items.findIndex(b => b.id === active.id)
+    const newIndex = items.findIndex(b => b.id === over.id)
+    const next = arrayMove(items, oldIndex, newIndex)
     setItems(next)
     startTransition(async () => {
       await updateTbrOrder(next.map(b => b.id))
@@ -70,7 +166,6 @@ export const TbrShelfGrid = ({ books }: Props) => {
 
   const [progressBook, setProgressBook] = useState<Book | null>(null)
   const [bookToFinish, setBookToFinish] = useState<Book | null>(null)
-
 
   return (
     <>
@@ -93,7 +188,6 @@ export const TbrShelfGrid = ({ books }: Props) => {
         </div>
       </div>
 
-
       {items.length === 0 ? (
         <div className="tbr-empty">
           <div className="tbr-empty-icon">
@@ -105,62 +199,23 @@ export const TbrShelfGrid = ({ books }: Props) => {
           </p>
         </div>
       ) : (
-        <ul className="tbr-list" style={{ opacity: isPending ? 0.7 : 1 }}>
-          {items.map((book, i) => (
-            <li key={book.id} className="tbr-card">
-              <div className="tbr-left">
-                <div className="tbr-arrows">
-                  <button
-                    className="tbr-arrow-btn"
-                    onClick={() => move(i, -1)}
-                    disabled={i === 0 || isPending}
-                    aria-label="Move up"
-                    style={{ opacity: i === 0 ? 0.3 : 1 }}
-                  >
-                    <ChevronUp size={14} />
-                  </button>
-                  <button
-                    className="tbr-arrow-btn"
-                    onClick={() => move(i, 1)}
-                    disabled={i === items.length - 1 || isPending}
-                    aria-label="Move down"
-                    style={{ opacity: i === items.length - 1 ? 0.3 : 1 }}
-                  >
-                    <ChevronDown size={14} />
-                  </button>
-                </div>
-                <span className="tbr-rank">{i + 1}</span>
-                <BookCover book={book} />
-              </div>
-
-              <div className="tbr-right">
-                <div className="tbr-info">
-                  <p className="tbr-book-title">{book.title}</p>
-                  {book.author && (
-                    <p className="tbr-book-author">{book.author}</p>
-                  )}
-                </div>
-                <div className="tbr-actions">
-                  <div className="tbr-btn-group">
-                    <button onClick={() => setProgressBook(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
-                      <BookOpen size={14} /> <span className="tbr-btn-label">Reading</span>
-                    </button>
-                    <button onClick={() => setBookToFinish(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
-                      <Check size={14} /> <span className="tbr-btn-label">Finished</span>
-                    </button>
-                  </div>
-                  <button
-                    className="tbr-delete-btn"
-                    onClick={() => handleDelete(book.id)}
-                    aria-label="Remove"
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={items.map(b => b.id)} strategy={verticalListSortingStrategy}>
+            <ul className="tbr-list" style={{ opacity: isPending ? 0.7 : 1 }}>
+              {items.map((book, i) => (
+                <SortableBookItem
+                  key={book.id}
+                  book={book}
+                  index={i}
+                  isPending={isPending}
+                  onFinish={setBookToFinish}
+                  onProgress={setProgressBook}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </ul>
+          </SortableContext>
+        </DndContext>
       )}
 
       {progressBook && (

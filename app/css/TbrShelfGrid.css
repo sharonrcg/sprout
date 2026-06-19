@@ -99,24 +99,21 @@
   padding-right: 14px;
   border-right: 1px solid var(--sp-line);
 }
-.tbr-arrows {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex-shrink: 0;
-}
-.tbr-arrow-btn {
+.tbr-drag-handle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 7px;
-  border: 1px solid var(--sp-line);
-  background: var(--sp-paper);
-  color: var(--sp-muted);
-  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--sp-faint);
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
 }
+.tbr-drag-handle:active { cursor: grabbing; }
 .tbr-rank {
   font-family: var(--sp-disp);
   font-size: clamp(20px, 5.5vw, 26px);
