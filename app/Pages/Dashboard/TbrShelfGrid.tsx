@@ -142,11 +142,11 @@ export const TbrShelfGrid = ({ books }: Props) => {
                 </div>
                 <div className="tbr-actions">
                   <div className="tbr-btn-group">
-                    <button onClick={() => setBookToFinish(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
-                      <Check size={14} /> Finished
-                    </button>
                     <button onClick={() => setProgressBook(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
-                      <BookOpen size={14} /> Reading
+                      <BookOpen size={14} /> <span className="tbr-btn-label">Reading</span>
+                    </button>
+                    <button onClick={() => setBookToFinish(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
+                      <Check size={14} /> <span className="tbr-btn-label">Finished</span>
                     </button>
                   </div>
                   <button

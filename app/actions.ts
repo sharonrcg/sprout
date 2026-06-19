@@ -141,6 +141,16 @@ export const addBook = async (input: AddBookInput): Promise<Book> => {
   const [supabase, user] = await Promise.all([createClient(), getUser()])
   if (!user) throw new Error('Not authenticated')
 
+  let sortOrder: number | null = null
+  if (input.status === 'tbr') {
+    const { count } = await supabase
+      .from('books')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('status', 'tbr')
+    sortOrder = count ?? 0
+  }
+
   const { data, error } = await supabase
     .from('books')
     .insert({
@@ -155,6 +165,7 @@ export const addBook = async (input: AddBookInput): Promise<Book> => {
       finished_at: input.status === 'finished' ? input.finished_at : null,
       page_count: input.page_count ?? null,
       current_page: input.current_page ?? 0,
+      sort_order: sortOrder,
     })
     .select()
     .single()

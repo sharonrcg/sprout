@@ -133,7 +133,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
               {!editing && (
                 <div className="bdm-left-actions">
                   <button className="bdm-edit-btn" onClick={() => setEditing(true)}>
-                    <Pencil size={14} /> Edit
+                    <Pencil size={14} /> <span className="bdm-edit-label">Edit</span>
                   </button>
                   <button
                     className="bdm-delete-btn"

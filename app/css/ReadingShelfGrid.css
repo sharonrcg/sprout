@@ -249,3 +249,7 @@
   .rc-card { gap: 12px; padding: 14px; }
   .rc-btn { padding: 7px 11px; font-size: 13px; gap: 5px; }
 }
+@media (max-width: 640px) {
+  .rc-btn-label { display: none; }
+  .rc-btn { padding: 8px 11px; }
+}

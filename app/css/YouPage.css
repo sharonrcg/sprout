@@ -314,4 +314,5 @@
   .you-del-actions .you-btn-ghost,
   .you-del-actions .you-btn-danger-filled { width: 100%; justify-content: center; }
   .you-btn-sage { width: 100%; }
+  .you-btn-danger { width: 100%; justify-content: center; }
 }

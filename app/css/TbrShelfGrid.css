@@ -230,4 +230,6 @@
 }
 @media (max-width: 640px) {
   .tbr-rank { display: none; }
+  .tbr-btn-label { display: none; }
+  .tbr-btn { padding: 6px 10px; }
 }

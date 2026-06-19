@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { BarChart2, BookOpen, Check, Leaf, Trash2 } from 'lucide-react'
+import { BookOpen, Check, Leaf, PenLine, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
 import { removeBook, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
@@ -84,15 +84,15 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
             onClick={(e) => { e.stopPropagation(); onOpen(book) }}
             className="rc-btn rc-btn-update"
           >
-            <BarChart2 size={15} />
-            Update progress
+            <PenLine size={15} />
+            <span className="rc-btn-label">Update progress</span>
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onFinish(book) }}
             className="rc-btn rc-btn-finish"
           >
             <Check size={15} />
-            Finished
+            <span className="rc-btn-label">Finished</span>
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onRemove(book.id) }}

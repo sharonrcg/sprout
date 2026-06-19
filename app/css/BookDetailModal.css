@@ -322,7 +322,9 @@
   .bdm-content { padding: 36px 20px 72px; }
   .bdm-grid { grid-template-columns: 1fr; gap: 22px; }
   .bdm-left { flex-direction: row; align-items: flex-start; gap: 16px; }
-  .bdm-cover-wrap { width: 110px; flex-shrink: 0; }
+  .bdm-cover-wrap { width: 200px; flex-shrink: 0; }
   .bdm-left-actions { flex-direction: column; gap: 8px; padding-top: 4px; }
   .bdm-body { padding-top: 0; padding-right: 0; }
+  .bdm-edit-label { display: none; }
+  .bdm-edit-btn { padding: 12px 12px; }
 }
