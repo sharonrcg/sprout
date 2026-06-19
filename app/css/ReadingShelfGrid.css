@@ -108,7 +108,7 @@
   overflow: hidden;
   box-shadow: 0 6px 18px -6px rgba(45, 42, 32, 0.5);
 }
-.rc-book-cover img { object-fit: cover; z-index: 1; filter: opacity(0.90); }
+.rc-book-cover img { object-fit: cover; z-index: 1; filter: brightness(1.06) contrast(0.90); }
 .rc-cover-shine {
   position: absolute;
   inset: 0;

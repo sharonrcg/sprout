@@ -134,7 +134,7 @@
   overflow: hidden;
   box-shadow: 0 4px 12px -4px rgba(45, 42, 32, 0.4);
 }
-.tbr-cover img { object-fit: cover; z-index: 1; filter: opacity(0.90); }
+.tbr-cover img { object-fit: cover; z-index: 1; filter: brightness(1.06) contrast(0.90); }
 .tbr-cover-fallback {
   position: absolute;
   inset: 0;

@@ -162,7 +162,7 @@
   background: #7a6a52;
   box-shadow: 0 2px 8px -3px rgba(45, 42, 32, 0.4);
 }
-.abf-result-cover img { object-fit: cover; filter: opacity(0.90); }
+.abf-result-cover img { object-fit: cover; filter: brightness(1.06) contrast(0.90); }
 .abf-result-info {
   flex: 1;
   min-width: 0;
@@ -280,7 +280,7 @@
   background: #7a6a52;
   box-shadow: 0 10px 22px -10px rgba(45, 42, 32, 0.5);
 }
-.abf-book-cover img { object-fit: cover; filter: opacity(0.90); }
+.abf-book-cover img { object-fit: cover; filter: brightness(1.06) contrast(0.90); }
 .abf-book-meta { flex: 1; min-width: 0; padding-top: 4px; }
 .abf-book-title {
   font-family: var(--sp-disp);
