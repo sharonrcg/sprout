@@ -171,21 +171,13 @@
   overflow: hidden;
   box-shadow: 0 10px 22px -10px rgba(45, 42, 32, 0.5);
 }
-.fg-book-cover img { object-fit: cover; z-index: 1; }
+.fg-book-cover img { object-fit: cover; z-index: 1; filter: opacity(0.90); }
 .fg-cover-shine {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
   background: linear-gradient(105deg, rgba(255,255,255,0.16) 0%, transparent 22%, transparent 78%, rgba(0,0,0,0.12) 100%);
-}
-.fg-cover-spine {
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 7px;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0));
 }
 .fg-cover-fallback {
   position: absolute;

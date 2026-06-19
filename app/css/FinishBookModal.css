@@ -38,21 +38,12 @@
     padding: 0;
   }
   .fbm-inner {
+    max-width: 100%;
     border-radius: 24px 24px 0 0;
     max-height: 88vh;
+    padding-bottom: 40px;
     animation: fbm-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
   }
-  .fbm-handle { display: block; }
-}
-
-/* ── Drag handle (mobile only) ── */
-.fbm-handle {
-  display: none;
-  width: 36px;
-  height: 4px;
-  border-radius: 99px;
-  background: var(--sp-line-2);
-  margin: 0 auto -8px;
 }
 
 /* ── Header row ── */
@@ -100,7 +91,7 @@
   flex-shrink: 0;
   box-shadow: 0 4px 10px -4px rgba(45, 42, 32, 0.4);
 }
-.fbm-book-cover img { object-fit: cover; z-index: 1; }
+.fbm-book-cover img { object-fit: cover; z-index: 1; filter: opacity(0.90); }
 .fbm-cover-shine {
   position: absolute;
   inset: 0;

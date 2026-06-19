@@ -28,16 +28,6 @@
   position: relative;
 }
 
-/* ── Handle (mobile only) ── */
-.rpm-handle {
-  display: none;
-  width: 36px;
-  height: 4px;
-  border-radius: 99px;
-  background: var(--sp-line-2);
-  margin: 0 auto 18px;
-}
-
 /* ── Title row ── */
 .rpm-title-row {
   display: flex;
@@ -81,7 +71,7 @@
   overflow: hidden;
   box-shadow: 0 6px 16px -6px rgba(45, 42, 32, 0.45);
 }
-.rpm-book-cover img { object-fit: cover; z-index: 1; }
+.rpm-book-cover img { object-fit: cover; z-index: 1; filter: opacity(0.90); }
 .rpm-cover-shine {
   position: absolute;
   inset: 0;
@@ -254,5 +244,4 @@
     overflow-y: auto;
     animation: sp-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1);
   }
-  .rpm-handle { display: block; }
 }

@@ -60,8 +60,6 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="rpm-inner">
-        <div className="rpm-handle" />
-
         <div className="rpm-title-row">
           <h3 className="rpm-title">Update progress</h3>
           <button className="rpm-close-btn" onClick={onClose} aria-label="Close">

@@ -2,11 +2,8 @@
 
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { X, Check, Leaf } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { finishBook } from '@/app/actions'
-import type { Book } from '@/lib/types'
 import '@/app/css/FinishBookModal.css'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
@@ -41,13 +38,24 @@ const LeafRating = ({ value, onChange }: { value: number; onChange: (v: number) 
   )
 }
 
+export interface FinishData {
+  rating: number | null
+  notes: string | null
+  finished_at: string | null
+}
+
 interface Props {
-  book: Book
+  book: {
+    title: string
+    author: string | null
+    cover_i: string | null
+    isbn: string | null
+  }
+  onSave: (data: FinishData) => Promise<void>
   onClose: () => void
 }
 
-export const FinishBookModal = ({ book, onClose }: Props) => {
-  const router = useRouter()
+export const FinishBookModal = ({ book, onSave, onClose }: Props) => {
   const [isPending, startTransition] = useTransition()
   const [rating, setRating] = useState(0)
   const [finishedAt, setFinishedAt] = useState(() => new Date().toISOString().split('T')[0])
@@ -63,13 +71,12 @@ export const FinishBookModal = ({ book, onClose }: Props) => {
 
   const handleFinish = () => {
     startTransition(async () => {
-      await finishBook(book.id, {
+      await onSave({
         rating: rating || null,
         notes: notes.trim() || null,
         finished_at: finishedAt || null,
       })
       onClose()
-      router.push('/finished')
     })
   }
 
@@ -79,8 +86,6 @@ export const FinishBookModal = ({ book, onClose }: Props) => {
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="fbm-inner">
-        <div className="fbm-handle" />
-
         <div className="fbm-title-row">
           <h3 className="fbm-title">Finished!</h3>
           <button className="fbm-close-btn" onClick={onClose} aria-label="Close">

@@ -70,7 +70,6 @@ const BookCoverImage = ({ book }: { book: Book }) => {
         </div>
       )}
       <div className="fg-cover-shine" />
-      <div className="fg-cover-spine" />
     </div>
   )
 }
@@ -86,7 +85,7 @@ export const FinishedShelfGrid = ({ books }: Props) => {
 
   const year = new Date().getFullYear()
   const thisYear = books.filter(b =>
-    (b.finished_at ?? b.created_at).startsWith(String(year))
+    b.finished_at?.startsWith(String(year))
   ).length
 
   const shown = useMemo(() => {
@@ -116,7 +115,7 @@ export const FinishedShelfGrid = ({ books }: Props) => {
         <div className="fg-search">
           <Search size={18} style={{ flexShrink: 0 }} />
           <input
-            type="search"
+            type="text"
             placeholder="Search your shelf — title, author…"
             value={q}
             onChange={e => setQ(e.target.value)}

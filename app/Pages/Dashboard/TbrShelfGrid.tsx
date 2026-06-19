@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Bookmark, ChevronUp, ChevronDown, Trash2, Check, BookOpen } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { removeBook, updateTbrOrder } from '@/app/actions'
+import { removeBook, updateTbrOrder, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import { FinishBookModal } from '@/app/Components/FinishBookModal'
@@ -68,7 +68,8 @@ export const TbrShelfGrid = ({ books }: Props) => {
   }
 
   const [progressBook, setProgressBook] = useState<Book | null>(null)
-  const [finishBook, setFinishBook] = useState<Book | null>(null)
+  const [bookToFinish, setBookToFinish] = useState<Book | null>(null)
+
 
   return (
     <>
@@ -131,7 +132,7 @@ export const TbrShelfGrid = ({ books }: Props) => {
                 </div>
                 <div className="tbr-actions">
                   <div className="tbr-btn-group">
-                    <button onClick={() => setFinishBook(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
+                    <button onClick={() => setBookToFinish(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
                       <Check size={14} /> Finished
                     </button>
                     <button onClick={() => setProgressBook(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
@@ -155,8 +156,15 @@ export const TbrShelfGrid = ({ books }: Props) => {
       {progressBook && (
         <ReadingProgressModal book={progressBook} onClose={() => setProgressBook(null)} />
       )}
-      {finishBook && (
-        <FinishBookModal book={finishBook} onClose={() => setFinishBook(null)} />
+      {bookToFinish && (
+        <FinishBookModal
+          book={bookToFinish}
+          onSave={async (data) => {
+            await finishBook(bookToFinish.id, data)
+            router.push('/finished')
+          }}
+          onClose={() => setBookToFinish(null)}
+        />
       )}
     </>
   )

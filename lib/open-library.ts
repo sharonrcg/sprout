@@ -30,7 +30,7 @@ export const searchBooks = async (query: string): Promise<BookSearchResult[]> =>
   const params = new URLSearchParams({
     q: query,
     fields: 'key,title,author_name,first_publish_year,isbn,cover_i,number_of_pages_median',
-    limit: '10',
+    limit: '30',
   })
 
   const res = await fetch(`${OPEN_LIBRARY_BASE}/search.json?${params}`, {

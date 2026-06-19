@@ -29,6 +29,11 @@ export const SidebarNav = ({ userName, userEmail }: Props) => {
   const [modalOpen, setModalOpen] = useState(false)
   const defaultMode = pathnameToMode(pathname)
 
+  const openAddBook = () => {
+    window.dispatchEvent(new CustomEvent('sprout:close-modals'))
+    setModalOpen(true)
+  }
+
   const initial = (userName || userEmail || '?')[0].toUpperCase()
 
   return (
@@ -42,7 +47,7 @@ export const SidebarNav = ({ userName, userEmail }: Props) => {
           <span className="sb-logo-name">sprout</span>
         </div>
 
-        <button className="sb-add-btn" onClick={() => setModalOpen(true)}>
+        <button className="sb-add-btn" onClick={openAddBook}>
           <Plus size={17} />
           Add a book
         </button>
@@ -77,7 +82,7 @@ export const SidebarNav = ({ userName, userEmail }: Props) => {
       </aside>
 
       {/* ── Mobile FAB ── */}
-      <button className="sp-fab" onClick={() => setModalOpen(true)} aria-label="Add a book">
+      <button className="sp-fab" onClick={openAddBook} aria-label="Add a book">
         <Plus size={26} />
       </button>
 

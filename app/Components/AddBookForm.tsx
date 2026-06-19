@@ -6,6 +6,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Search, Leaf, Check, ChevronLeft, Sparkles, Plus } from 'lucide-react'
 import { addBook, getBooks } from '@/app/actions'
 import { coverUrl } from '@/lib/open-library'
+import { FinishBookModal } from './FinishBookModal'
 import type { AddBookInput, BookSearchResult } from '@/lib/types'
 import '@/app/css/AddBookForm.css'
 
@@ -64,9 +65,11 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
   const [isSearching, setIsSearching] = useState(false)
   const [selected, setSelected] = useState<BookSearchResult | null>(null)
   const [multiSelected, setMultiSelected] = useState<BookSearchResult[]>([])
+  const [singleFinishBook, setSingleFinishBook] = useState<BookSearchResult | null>(null)
   const [readingPage, setReadingPage] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [shelfKeys, setShelfKeys] = useState<Set<string>>(new Set())
+  const [visibleCount, setVisibleCount] = useState(10)
 
   useEffect(() => {
     getBooks().then(books => {
@@ -81,6 +84,8 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
   }, [])
 
   const isMultiMode = mode !== 'reading'
+
+  useEffect(() => { setVisibleCount(10) }, [query])
 
   useEffect(() => {
     if (selected) return
@@ -137,6 +142,8 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     setMode(newMode)
     setMultiSelected([])
     setSelected(null)
+    setSingleFinishBook(null)
+    setVisibleCount(10)
   }
 
   const handleBulkAdd = () => {
@@ -199,6 +206,31 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
   }
 
   return (
+    <>
+    {singleFinishBook && (
+      <FinishBookModal
+        book={singleFinishBook}
+        onSave={async (data) => {
+          await addBook({
+            title: singleFinishBook.title,
+            author: singleFinishBook.author,
+            isbn: singleFinishBook.isbn,
+            cover_i: singleFinishBook.cover_i,
+            status: 'finished',
+            rating: data.rating,
+            notes: data.notes,
+            finished_at: data.finished_at,
+            page_count: singleFinishBook.pageCount ?? null,
+            current_page: null,
+          })
+          handleClear()
+          onSuccess?.()
+          router.refresh()
+          if (pathname !== MODE_PATH.finished) router.push(MODE_PATH.finished)
+        }}
+        onClose={() => setSingleFinishBook(null)}
+      />
+    )}
     <form onSubmit={handleSubmit}>
       {/* mode tabs */}
       <div className="abf-tabs">
@@ -242,14 +274,16 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               {!isSearching && results.length === 0 && (
                 <p className="abf-results-msg">No matches. Check the spelling?</p>
               )}
-              {results.filter(b => !isOnShelf(b)).map((book, i) => {
+              {results.slice(0, visibleCount).map((book, i) => {
                 const src = book.cover_i ? coverUrl(book.cover_i) : null
+                const onShelf = isOnShelf(book)
                 return (
                   <button
                     key={book.openLibraryKey + i}
                     type="button"
-                    onClick={() => handleSelect(book)}
-                    className="abf-result-item"
+                    onClick={() => !onShelf && handleSelect(book)}
+                    className={`abf-result-item${onShelf ? ' abf-result-item-on-shelf' : ''}`}
+                    title={onShelf ? 'Already on your shelf' : undefined}
                   >
                     <div className="abf-result-cover-wrap">
                       <div className="abf-result-cover">
@@ -262,10 +296,17 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
                         {book.author}{book.firstPublishedYear ? ` · ${book.firstPublishedYear}` : ''}
                       </span>
                     </div>
-                    <div className="abf-result-add"><Plus size={15} /></div>
+                    <div className={`abf-result-add${onShelf ? ' abf-result-add-on-shelf' : ''}`}>
+                      {onShelf ? <Check size={15} /> : <Plus size={15} />}
+                    </div>
                   </button>
                 )
               })}
+              {results.length > visibleCount && (
+                <button type="button" onClick={() => setVisibleCount(c => c + 10)} className="abf-show-more-btn">
+                  Show more
+                </button>
+              )}
             </div>
           )}
 
@@ -389,15 +430,17 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               {!isSearching && results.length === 0 && (
                 <p className="abf-results-msg">No matches. Check the spelling?</p>
               )}
-              {results.map((book, i) => {
+              {results.slice(0, visibleCount).map((book, i) => {
                 const src = book.cover_i ? coverUrl(book.cover_i) : null
                 const checked = isBookSelected(book)
+                const onShelf = isOnShelf(book)
                 return (
                   <button
                     key={book.openLibraryKey + i}
                     type="button"
-                    onClick={() => toggleSelect(book)}
-                    className={`abf-result-item${checked ? ' abf-result-item-selected' : ''}`}
+                    onClick={() => !onShelf && toggleSelect(book)}
+                    className={`abf-result-item${checked ? ' abf-result-item-selected' : ''}${onShelf ? ' abf-result-item-on-shelf' : ''}`}
+                    title={onShelf ? 'Already on your shelf' : undefined}
                   >
                     <div className="abf-result-cover-wrap">
                       <div className="abf-result-cover">
@@ -410,12 +453,17 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
                         {book.author}{book.firstPublishedYear ? ` · ${book.firstPublishedYear}` : ''}
                       </span>
                     </div>
-                    <div className={`abf-result-add${checked ? ' abf-result-add-checked' : ''}`}>
-                      {checked ? <Check size={15} /> : <Plus size={15} />}
+                    <div className={`abf-result-add${checked ? ' abf-result-add-checked' : ''}${onShelf ? ' abf-result-add-on-shelf' : ''}`}>
+                      {onShelf ? <Check size={15} /> : checked ? <Check size={15} /> : <Plus size={15} />}
                     </div>
                   </button>
                 )
               })}
+              {results.length > visibleCount && (
+                <button type="button" onClick={() => setVisibleCount(c => c + 10)} className="abf-show-more-btn">
+                  Show more
+                </button>
+              )}
             </div>
           )}
 
@@ -441,7 +489,13 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               </div>
               <button
                 type="button"
-                onClick={handleBulkAdd}
+                onClick={() => {
+                  if (mode === 'finished' && multiSelected.length === 1) {
+                    setSingleFinishBook(multiSelected[0])
+                  } else {
+                    handleBulkAdd()
+                  }
+                }}
                 disabled={isPending}
                 className="abf-submit-btn"
                 style={{ opacity: isPending ? 0.7 : 1 }}
@@ -454,5 +508,6 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
         </div>
       )}
     </form>
+    </>
   )
 }

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { BarChart2, BookOpen, Check, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { removeBook } from '@/app/actions'
+import { removeBook, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import { FinishBookModal } from '@/app/Components/FinishBookModal'
@@ -32,7 +32,6 @@ const BookCover = ({ book }: { book: Book }) => {
         </div>
       )}
       <div className="rc-cover-shine" />
-      <div className="rc-cover-spine" />
     </div>
   )
 }
@@ -115,7 +114,8 @@ export const ReadingShelfGrid = ({ books }: Props) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [activeBook, setActiveBook] = useState<Book | null>(null)
-  const [finishBook, setFinishBook] = useState<Book | null>(null)
+  const [bookToFinish, setBookToFinish] = useState<Book | null>(null)
+
 
   const handleRemove = (id: string) => {
     startTransition(async () => {
@@ -154,7 +154,7 @@ export const ReadingShelfGrid = ({ books }: Props) => {
               key={book.id}
               book={book}
               onOpen={setActiveBook}
-              onFinish={setFinishBook}
+              onFinish={setBookToFinish}
               onRemove={handleRemove}
             />
           ))}
@@ -164,8 +164,15 @@ export const ReadingShelfGrid = ({ books }: Props) => {
       {activeBook && (
         <ReadingProgressModal book={activeBook} onClose={() => setActiveBook(null)} />
       )}
-      {finishBook && (
-        <FinishBookModal book={finishBook} onClose={() => setFinishBook(null)} />
+      {bookToFinish && (
+        <FinishBookModal
+          book={bookToFinish}
+          onSave={async (data) => {
+            await finishBook(bookToFinish.id, data)
+            router.push('/finished')
+          }}
+          onClose={() => setBookToFinish(null)}
+        />
       )}
     </>
   )

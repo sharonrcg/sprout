@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { Leaf, BookOpen, Check, Pencil, Trash2 } from 'lucide-react'
@@ -63,7 +63,11 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [editing, setEditing] = useState(false)
-  const [confirming, setConfirming] = useState(false)
+
+  useEffect(() => {
+    window.addEventListener('sprout:close-modals', onClose)
+    return () => window.removeEventListener('sprout:close-modals', onClose)
+  }, [onClose])
 
   const [rating, setRating] = useState(book.rating ?? 0)
   const [finishedAt, setFinishedAt] = useState(book.finished_at ?? '')
@@ -109,27 +113,6 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
           ← Back to shelf
         </button>
 
-        {confirming ? (
-          <div className="bdm-confirm">
-            <h3 className="bdm-confirm-title">Remove this book?</h3>
-            <p className="bdm-confirm-text">
-              &ldquo;{book.title}&rdquo; will be taken off your shelf. This can&apos;t be undone.
-            </p>
-            <div className="bdm-confirm-actions">
-              <button className="bdm-keep-btn" onClick={() => setConfirming(false)}>
-                Keep it
-              </button>
-              <button
-                className="bdm-remove-btn"
-                onClick={handleDelete}
-                disabled={isPending}
-                style={{ opacity: isPending ? 0.6 : 1 }}
-              >
-                <Trash2 size={15} /> Remove
-              </button>
-            </div>
-          </div>
-        ) : (
           <div className="bdm-grid">
             {/* left: cover + actions */}
             <div className="bdm-left">
@@ -145,7 +128,6 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
                   </div>
                 )}
                 <div className="bdm-cover-shine" />
-                <div className="bdm-cover-spine" />
               </div>
 
               {!editing && (
@@ -155,7 +137,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
                   </button>
                   <button
                     className="bdm-delete-btn"
-                    onClick={() => setConfirming(true)}
+                    onClick={handleDelete}
                     aria-label="Remove book"
                   >
                     <Trash2 size={15} />
@@ -241,7 +223,6 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
               )}
             </div>
           </div>
-        )}
       </div>
     </div>
   )
