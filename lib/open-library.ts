@@ -69,7 +69,7 @@ export const searchBooks = async (query: string, offset = 0, limit = 10): Promis
   })
 
   const res = await fetch(`${OPEN_LIBRARY_BASE}/search.json?${params}`, {
-    next: { revalidate: 60 },
+    next: { revalidate: 3600 },
   })
 
   if (!res.ok) throw new Error(`Open Library search failed: ${res.status}`)

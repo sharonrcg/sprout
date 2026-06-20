@@ -10,7 +10,9 @@ export const GET = async (request: NextRequest) => {
 
   try {
     const results = await searchBooks(query, offset)
-    return Response.json(results)
+    return Response.json(results, {
+      headers: { 'Cache-Control': 'public, max-age=300, stale-while-revalidate=3600' },
+    })
   } catch (err) {
     console.error('[books/search]', err)
     return Response.json({ error: 'Search failed' }, { status: 502 })

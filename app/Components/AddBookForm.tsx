@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useTransition } from 'react'
+import { useState, useEffect, useTransition, useRef } from 'react'
 import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
 import { Search, Check, ChevronLeft, Sparkles, Plus, Layers, X } from 'lucide-react'
@@ -85,12 +85,23 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
 
   const isMultiMode = mode !== 'reading'
 
+  const searchCache = useRef<Map<string, BookSearchResult[]>>(new Map())
+
   useEffect(() => { setSearchOffset(0); setHasMore(false) }, [query])
 
   useEffect(() => {
     if (selected) return
     const term = query.trim()
     if (term.length < 2) { setResults([]); setIsSearching(false); return }
+
+    const cached = searchCache.current.get(term)
+    if (cached) {
+      setResults(cached)
+      setSearchOffset(10)
+      setHasMore(cached.length === 10)
+      return
+    }
+
     setIsSearching(true)
     const ctrl = new AbortController()
     const t = setTimeout(async () => {
@@ -98,6 +109,7 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
         const res = await fetch(`/api/books/search?q=${encodeURIComponent(term)}&offset=0`, { signal: ctrl.signal })
         if (res.ok) {
           const data = await res.json()
+          searchCache.current.set(term, data)
           setResults(data)
           setSearchOffset(10)
           setHasMore(data.length === 10)
