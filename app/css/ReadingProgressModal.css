@@ -62,10 +62,32 @@
   align-items: center;
   margin-bottom: 28px;
 }
+.rpm-cover-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.rpm-editions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  border: 1px solid var(--sp-line-2);
+  background: var(--sp-bg);
+  color: var(--sp-muted);
+  font-family: var(--sp-body);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.rpm-editions-btn:hover { background: var(--sp-paper); color: var(--sp-ink); }
 .rpm-book-cover {
   position: relative;
   width: 62px;
-  flex-shrink: 0;
   aspect-ratio: 2/3;
   border-radius: 7px;
   overflow: hidden;

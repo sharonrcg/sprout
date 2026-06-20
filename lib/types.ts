@@ -41,6 +41,12 @@ export interface BookSearchResult {
   pageCount: number | null
 }
 
+export interface EditionCover {
+  cover_i: string
+  isbn: string | null
+  pageCount: number | null
+}
+
 export interface OpenLibrarySearchResult {
   key: string
   title: string

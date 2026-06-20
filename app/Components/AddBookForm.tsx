@@ -3,11 +3,11 @@
 import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter, usePathname } from 'next/navigation'
-import { Search, Leaf, Check, ChevronLeft, Sparkles, Plus } from 'lucide-react'
+import { Search, Check, ChevronLeft, Sparkles, Plus, Layers, X } from 'lucide-react'
 import { addBook, getBooks } from '@/app/actions'
 import { coverUrl } from '@/lib/open-library'
 import { FinishBookModal } from './FinishBookModal'
-import type { AddBookInput, BookSearchResult } from '@/lib/types'
+import type { AddBookInput, BookSearchResult, EditionCover } from '@/lib/types'
 import '@/app/css/AddBookForm.css'
 
 export type Mode = 'finished' | 'reading' | 'tbr'
@@ -20,34 +20,6 @@ const MODE_PATH: Record<Mode, string> = {
 
 const MAX_MULTI_SELECT = 10
 
-const InteractiveLeafRating = ({ value, onChange, size = 34 }: { value: number; onChange: (v: number) => void; size?: number }) => {
-  const [hovered, setHovered] = useState(0)
-  return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-      {[1, 2, 3, 4, 5].map(i => (
-        <button
-          key={i}
-          type="button"
-          onClick={() => onChange(i === value ? 0 : i)}
-          onMouseEnter={() => setHovered(i)}
-          onMouseLeave={() => setHovered(0)}
-          className="abf-leaf-btn"
-        >
-          <Leaf
-            size={size}
-            style={{
-              color: 'var(--sp-sage)',
-              opacity: i <= (hovered || value) ? 1 : 0.25,
-              fill: i <= (hovered || value) ? 'rgba(110,137,90,0.22)' : 'none',
-              transition: 'opacity 0.12s, transform 0.12s',
-              transform: hovered && i <= hovered ? 'scale(1.18) rotate(-6deg)' : 'none',
-            }}
-          />
-        </button>
-      ))}
-    </div>
-  )
-}
 
 interface Props {
   onSuccess?: () => void
@@ -70,6 +42,32 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
   const [error, setError] = useState<string | null>(null)
   const [shelfKeys, setShelfKeys] = useState<Set<string>>(new Set())
   const [visibleCount, setVisibleCount] = useState(10)
+
+  const [editionPickerTarget, setEditionPickerTarget] = useState<BookSearchResult | null>(null)
+  const [coverOverrides, setCoverOverrides] = useState<Record<string, { cover_i: string; isbn: string | null }>>({})
+  const [editionCovers, setEditionCovers] = useState<EditionCover[]>([])
+  const [editionsLoading, setEditionsLoading] = useState(false)
+
+  const effectiveCoverId = (book: BookSearchResult) => coverOverrides[book.openLibraryKey]?.cover_i ?? book.cover_i
+  const effectiveIsbn = (book: BookSearchResult) => coverOverrides[book.openLibraryKey]?.isbn ?? book.isbn
+
+  const openEditionPicker = async (e: React.MouseEvent, book: BookSearchResult) => {
+    e.stopPropagation()
+    setEditionPickerTarget(book)
+    setEditionCovers([])
+    setEditionsLoading(true)
+    try {
+      const res = await fetch(`/api/books/editions?key=${encodeURIComponent(book.openLibraryKey)}`)
+      if (res.ok) setEditionCovers(await res.json())
+    } catch {}
+    setEditionsLoading(false)
+  }
+
+  const pickEditionCover = (cover: EditionCover) => {
+    if (!editionPickerTarget) return
+    setCoverOverrides(prev => ({ ...prev, [editionPickerTarget.openLibraryKey]: { cover_i: cover.cover_i, isbn: cover.isbn } }))
+    setEditionPickerTarget(null)
+  }
 
   useEffect(() => {
     getBooks().then(books => {
@@ -136,6 +134,9 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     setReadingPage(0)
     setError(null)
     setMultiSelected([])
+    setCoverOverrides({})
+    setEditionPickerTarget(null)
+    setEditionCovers([])
   }
 
   const handleModeChange = (newMode: Mode) => {
@@ -154,8 +155,8 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
         await Promise.all(multiSelected.map(book => addBook({
           title: book.title,
           author: book.author,
-          isbn: book.isbn,
-          cover_i: book.cover_i,
+          isbn: effectiveIsbn(book),
+          cover_i: effectiveCoverId(book),
           status: mode === 'tbr' ? 'tbr' : 'finished',
           rating: null,
           notes: null,
@@ -181,8 +182,8 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     const input: AddBookInput = {
       title: selected.title,
       author: selected.author,
-      isbn: selected.isbn,
-      cover_i: selected.cover_i,
+      isbn: effectiveIsbn(selected),
+      cover_i: effectiveCoverId(selected),
       status: 'reading',
       rating: null,
       notes: null,
@@ -205,17 +206,105 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     })
   }
 
+  const renderResultItem = (book: BookSearchResult, i: number, onClickMain: () => void) => {
+    const activeCoverId = effectiveCoverId(book)
+    const src = activeCoverId ? coverUrl(activeCoverId) : null
+    const checked = isBookSelected(book)
+    const onShelf = isOnShelf(book)
+    const hasOverride = !!coverOverrides[book.openLibraryKey]
+    return (
+      <div
+        key={book.openLibraryKey + i}
+        role="button"
+        tabIndex={onShelf ? -1 : 0}
+        onClick={() => { if (!onShelf) onClickMain() }}
+        onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && !onShelf) onClickMain() }}
+        className={`abf-result-item${checked ? ' abf-result-item-selected' : ''}${onShelf ? ' abf-result-item-on-shelf' : ''}`}
+        title={onShelf ? 'Already on your shelf' : undefined}
+      >
+        <div className="abf-result-cover-wrap">
+          <div className="abf-result-cover">
+            {src && <Image src={src} alt={book.title} fill sizes="40px" style={{ objectFit: 'cover' }} />}
+          </div>
+        </div>
+        <div className="abf-result-info">
+          <span className="abf-result-title">{book.title}</span>
+          <span className="abf-result-meta">
+            {book.author}{book.firstPublishedYear ? ` · ${book.firstPublishedYear}` : ''}
+          </span>
+        </div>
+        <div className="abf-result-actions">
+          {!onShelf && (
+            <button
+              type="button"
+              className={`abf-editions-btn${hasOverride ? ' abf-editions-btn-active' : ''}`}
+              onClick={e => openEditionPicker(e, book)}
+              aria-label="Choose edition"
+              title="Choose edition"
+            >
+              <Layers size={13} />
+            </button>
+          )}
+          <div className={`abf-result-add${onShelf ? ' abf-result-add-on-shelf' : ''}${checked ? ' abf-result-add-checked' : ''}`}>
+            {onShelf ? <Check size={15} /> : checked ? <Check size={15} /> : <Plus size={15} />}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <>
+    {/* Edition picker modal */}
+    {editionPickerTarget && (
+      <div className="abf-edition-overlay" onClick={() => setEditionPickerTarget(null)}>
+        <div className="abf-edition-modal" onClick={e => e.stopPropagation()}>
+          <div className="abf-edition-header">
+            <div>
+              <p className="abf-edition-label">Choose an edition</p>
+              <p className="abf-edition-book">{editionPickerTarget.title}</p>
+            </div>
+            <button type="button" className="abf-edition-close" onClick={() => setEditionPickerTarget(null)}>
+              <X size={18} />
+            </button>
+          </div>
+          {editionsLoading ? (
+            <p className="abf-edition-msg">Loading editions…</p>
+          ) : editionCovers.length === 0 ? (
+            <p className="abf-edition-msg">No alternate covers found.</p>
+          ) : (
+            <div className="abf-edition-grid">
+              {editionCovers.map(cover => {
+                const isActive = (coverOverrides[editionPickerTarget.openLibraryKey]?.cover_i ?? editionPickerTarget.cover_i) === cover.cover_i
+                return (
+                  <button
+                    key={cover.cover_i}
+                    type="button"
+                    className={`abf-edition-cover-btn${isActive ? ' abf-edition-cover-active' : ''}`}
+                    onClick={() => pickEditionCover(cover)}
+                  >
+                    <Image src={coverUrl(cover.cover_i)!} alt="Edition cover" fill sizes="90px" style={{ objectFit: 'cover' }} />
+                    {isActive && (
+                      <div className="abf-edition-check"><Check size={13} /></div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
     {singleFinishBook && (
       <FinishBookModal
-        book={singleFinishBook}
+        book={{ ...singleFinishBook, openLibraryKey: singleFinishBook.openLibraryKey }}
         onSave={async (data) => {
           await addBook({
             title: singleFinishBook.title,
             author: singleFinishBook.author,
-            isbn: singleFinishBook.isbn,
-            cover_i: singleFinishBook.cover_i,
+            isbn: data.isbn ?? effectiveIsbn(singleFinishBook),
+            cover_i: data.cover_i ?? effectiveCoverId(singleFinishBook),
             status: 'finished',
             rating: data.rating,
             notes: data.notes,
@@ -274,34 +363,9 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               {!isSearching && results.length === 0 && (
                 <p className="abf-results-msg">No matches. Check the spelling?</p>
               )}
-              {results.slice(0, visibleCount).map((book, i) => {
-                const src = book.cover_i ? coverUrl(book.cover_i) : null
-                const onShelf = isOnShelf(book)
-                return (
-                  <button
-                    key={book.openLibraryKey + i}
-                    type="button"
-                    onClick={() => !onShelf && handleSelect(book)}
-                    className={`abf-result-item${onShelf ? ' abf-result-item-on-shelf' : ''}`}
-                    title={onShelf ? 'Already on your shelf' : undefined}
-                  >
-                    <div className="abf-result-cover-wrap">
-                      <div className="abf-result-cover">
-                        {src && <Image src={src} alt={book.title} fill sizes="40px" style={{ objectFit: 'cover' }} />}
-                      </div>
-                    </div>
-                    <div className="abf-result-info">
-                      <span className="abf-result-title">{book.title}</span>
-                      <span className="abf-result-meta">
-                        {book.author}{book.firstPublishedYear ? ` · ${book.firstPublishedYear}` : ''}
-                      </span>
-                    </div>
-                    <div className={`abf-result-add${onShelf ? ' abf-result-add-on-shelf' : ''}`}>
-                      {onShelf ? <Check size={15} /> : <Plus size={15} />}
-                    </div>
-                  </button>
-                )
-              })}
+              {results.slice(0, visibleCount).map((book, i) =>
+                renderResultItem(book, i, () => handleSelect(book))
+              )}
               {results.length > visibleCount && (
                 <button type="button" onClick={() => setVisibleCount(c => c + 10)} className="abf-show-more-btn">
                   Show more
@@ -324,10 +388,13 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
           <div className="abf-book-header">
             <div className="abf-book-cover-col">
               <div className="abf-book-cover">
-                {selected.cover_i && (
-                  <Image src={coverUrl(selected.cover_i)!} alt={selected.title} fill sizes="96px" style={{ objectFit: 'cover' }} />
+                {effectiveCoverId(selected) && (
+                  <Image src={coverUrl(effectiveCoverId(selected))!} alt={selected.title} fill sizes="96px" style={{ objectFit: 'cover' }} />
                 )}
               </div>
+              <button type="button" className="abf-editions-detail-btn" onClick={e => openEditionPicker(e, selected)}>
+                <Layers size={12} /> Editions
+              </button>
             </div>
             <div className="abf-book-meta">
               <h3 className="abf-book-title">{selected.title}</h3>
@@ -430,35 +497,9 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               {!isSearching && results.length === 0 && (
                 <p className="abf-results-msg">No matches. Check the spelling?</p>
               )}
-              {results.slice(0, visibleCount).map((book, i) => {
-                const src = book.cover_i ? coverUrl(book.cover_i) : null
-                const checked = isBookSelected(book)
-                const onShelf = isOnShelf(book)
-                return (
-                  <button
-                    key={book.openLibraryKey + i}
-                    type="button"
-                    onClick={() => !onShelf && toggleSelect(book)}
-                    className={`abf-result-item${checked ? ' abf-result-item-selected' : ''}${onShelf ? ' abf-result-item-on-shelf' : ''}`}
-                    title={onShelf ? 'Already on your shelf' : undefined}
-                  >
-                    <div className="abf-result-cover-wrap">
-                      <div className="abf-result-cover">
-                        {src && <Image src={src} alt={book.title} fill sizes="40px" style={{ objectFit: 'cover' }} />}
-                      </div>
-                    </div>
-                    <div className="abf-result-info">
-                      <span className="abf-result-title">{book.title}</span>
-                      <span className="abf-result-meta">
-                        {book.author}{book.firstPublishedYear ? ` · ${book.firstPublishedYear}` : ''}
-                      </span>
-                    </div>
-                    <div className={`abf-result-add${checked ? ' abf-result-add-checked' : ''}${onShelf ? ' abf-result-add-on-shelf' : ''}`}>
-                      {onShelf ? <Check size={15} /> : checked ? <Check size={15} /> : <Plus size={15} />}
-                    </div>
-                  </button>
-                )
-              })}
+              {results.slice(0, visibleCount).map((book, i) =>
+                renderResultItem(book, i, () => toggleSelect(book))
+              )}
               {results.length > visibleCount && (
                 <button type="button" onClick={() => setVisibleCount(c => c + 10)} className="abf-show-more-btn">
                   Show more
@@ -491,7 +532,8 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
                 type="button"
                 onClick={() => {
                   if (mode === 'finished' && multiSelected.length === 1) {
-                    setSingleFinishBook(multiSelected[0])
+                    const book = multiSelected[0]
+                    setSingleFinishBook({ ...book, cover_i: effectiveCoverId(book), isbn: effectiveIsbn(book) })
                   } else {
                     handleBulkAdd()
                   }

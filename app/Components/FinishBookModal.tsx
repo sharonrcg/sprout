@@ -2,8 +2,10 @@
 
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
-import { X, Check, Leaf } from 'lucide-react'
+import { X, Check, Leaf, Layers } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
+import { EditionPickerModal } from './EditionPickerModal'
+import type { EditionCover } from '@/lib/types'
 import '@/app/css/FinishBookModal.css'
 
 const COVER_COLORS = ['#7a6a52', '#5B7A52', '#8B6E3C', '#4A6B5A', '#7A5B4A', '#6B5A7A', '#5A6B7A']
@@ -42,6 +44,8 @@ export interface FinishData {
   rating: number | null
   notes: string | null
   finished_at: string | null
+  cover_i?: string | null
+  isbn?: string | null
 }
 
 interface Props {
@@ -50,6 +54,7 @@ interface Props {
     author: string | null
     cover_i: string | null
     isbn: string | null
+    openLibraryKey?: string
   }
   onSave: (data: FinishData) => Promise<void>
   onClose: () => void
@@ -58,13 +63,18 @@ interface Props {
 export const FinishBookModal = ({ book, onSave, onClose }: Props) => {
   const [isPending, startTransition] = useTransition()
   const [rating, setRating] = useState(0)
-  const [finishedAt, setFinishedAt] = useState(() => new Date().toISOString().split('T')[0])
+  const [finishedAt, setFinishedAt] = useState('')
   const [notes, setNotes] = useState('')
+  const [coverOverride, setCoverOverride] = useState<EditionCover | null>(null)
+  const [editionPickerOpen, setEditionPickerOpen] = useState(false)
 
-  const src = book.cover_i
-    ? coverUrl(book.cover_i)
-    : book.isbn
-    ? coverUrlByIsbn(book.isbn)
+  const activeCoverId = coverOverride?.cover_i ?? book.cover_i
+  const activeIsbn = coverOverride?.isbn ?? book.isbn
+
+  const src = activeCoverId
+    ? coverUrl(activeCoverId)
+    : activeIsbn
+    ? coverUrlByIsbn(activeIsbn)
     : null
 
   const today = new Date().toISOString().split('T')[0]
@@ -75,74 +85,93 @@ export const FinishBookModal = ({ book, onSave, onClose }: Props) => {
         rating: rating || null,
         notes: notes.trim() || null,
         finished_at: finishedAt || null,
+        cover_i: coverOverride ? activeCoverId : undefined,
+        isbn: coverOverride ? activeIsbn : undefined,
       })
       onClose()
     })
   }
 
   return (
-    <div
-      className="fbm-overlay"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div className="fbm-inner">
-        <div className="fbm-title-row">
-          <h3 className="fbm-title">Finished!</h3>
-          <button className="fbm-close-btn" onClick={onClose} aria-label="Close">
-            <X size={18} />
+    <>
+      {editionPickerOpen && (
+        <EditionPickerModal
+          title={book.title}
+          isbn={book.isbn}
+          workKey={book.openLibraryKey}
+          currentCoverId={activeCoverId}
+          onSelect={cover => { setCoverOverride(cover); setEditionPickerOpen(false) }}
+          onClose={() => setEditionPickerOpen(false)}
+        />
+      )}
+      <div
+        className="fbm-overlay"
+        onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      >
+        <div className="fbm-inner">
+          <div className="fbm-title-row">
+            <h3 className="fbm-title">Finished!</h3>
+            <button className="fbm-close-btn" onClick={onClose} aria-label="Close">
+              <X size={18} />
+            </button>
+          </div>
+
+          <div className="fbm-book-header">
+            <div className="fbm-cover-col">
+              <div className="fbm-book-cover" style={{ background: getCoverColor(book.title) }}>
+                {src && <Image src={src} alt={book.title} fill sizes="62px" style={{ objectFit: 'cover' }} />}
+                <div className="fbm-cover-shine" />
+              </div>
+              <button type="button" className="fbm-editions-btn" onClick={() => setEditionPickerOpen(true)}>
+                <Layers size={11} /> Editions
+              </button>
+            </div>
+            <div>
+              <p className="fbm-book-title">{book.title}</p>
+              {book.author && <p className="fbm-book-author">{book.author}</p>}
+            </div>
+          </div>
+
+          <div className="fbm-field-group">
+            <label className="fbm-label">How was it?</label>
+            <LeafRating value={rating} onChange={setRating} />
+          </div>
+
+          <div className="fbm-field-group">
+            <label className="fbm-label">
+              Date finished <span className="fbm-label-faint">(optional)</span>
+            </label>
+            <input
+              type="date"
+              value={finishedAt}
+              max={today}
+              onChange={e => setFinishedAt(e.target.value)}
+              className="fbm-input"
+            />
+          </div>
+
+          <div className="fbm-field-group">
+            <label className="fbm-label">Your thoughts</label>
+            <textarea
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="What stayed with you?"
+              rows={3}
+              className="fbm-textarea"
+            />
+          </div>
+
+          <button
+            className="fbm-finish-btn"
+            onClick={handleFinish}
+            disabled={isPending}
+            style={{ opacity: isPending ? 0.7 : 1 }}
+          >
+            <Check size={16} />
+            {isPending ? 'Saving…' : 'Mark as finished'}
           </button>
         </div>
-
-        <div className="fbm-book-header">
-          <div className="fbm-book-cover" style={{ background: getCoverColor(book.title) }}>
-            {src && <Image src={src} alt={book.title} fill sizes="48px" style={{ objectFit: 'cover' }} />}
-            <div className="fbm-cover-shine" />
-          </div>
-          <div>
-            <p className="fbm-book-title">{book.title}</p>
-            {book.author && <p className="fbm-book-author">{book.author}</p>}
-          </div>
-        </div>
-
-        <div className="fbm-field-group">
-          <label className="fbm-label">How was it?</label>
-          <LeafRating value={rating} onChange={setRating} />
-        </div>
-
-        <div className="fbm-field-group">
-          <label className="fbm-label">
-            Date finished <span className="fbm-label-faint">(optional)</span>
-          </label>
-          <input
-            type="date"
-            value={finishedAt}
-            max={today}
-            onChange={e => setFinishedAt(e.target.value)}
-            className="fbm-input"
-          />
-        </div>
-
-        <div className="fbm-field-group">
-          <label className="fbm-label">Your thoughts</label>
-          <textarea
-            value={notes}
-            onChange={e => setNotes(e.target.value)}
-            placeholder="What stayed with you?"
-            rows={3}
-            className="fbm-textarea"
-          />
-        </div>
-
-        <button
-          className="fbm-finish-btn"
-          onClick={handleFinish}
-          disabled={isPending}
-          style={{ opacity: isPending ? 0.7 : 1 }}
-        >
-          <Check size={16} />
-          {isPending ? 'Saving…' : 'Mark as finished'}
-        </button>
       </div>
-    </div>
+    </>
   )
 }

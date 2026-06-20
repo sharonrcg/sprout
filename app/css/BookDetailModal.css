@@ -131,9 +131,34 @@
 }
 
 /* ── Left action buttons ── */
-.bdm-left-actions { display: flex; gap: 8px; }
-.bdm-edit-btn {
+.bdm-left-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bdm-edit-delete-row {
+  display: flex;
+  gap: 8px;
+}
+.bdm-editions-btn {
   flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--sp-line-2);
+  background: var(--sp-paper);
+  color: var(--sp-ink-soft);
+  font-family: var(--sp-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bdm-editions-btn:hover { background: var(--sp-bg-2); }
+.bdm-edit-btn {
+  width: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -323,8 +348,11 @@
   .bdm-grid { grid-template-columns: 1fr; gap: 22px; }
   .bdm-left { flex-direction: row; align-items: flex-start; gap: 16px; }
   .bdm-cover-wrap { width: 200px; flex-shrink: 0; }
-  .bdm-left-actions { flex-direction: column; gap: 8px; padding-top: 4px; }
+  .bdm-left-actions { flex: 1; padding-top: 4px; }
   .bdm-body { padding-top: 0; padding-right: 0; }
   .bdm-edit-label { display: none; }
-  .bdm-edit-btn { padding: 12px 12px; }
+  .bdm-edit-btn { width: 40px; height: 40px; padding: 0; box-shadow: none; }
+  .bdm-editions-label { display: none; }
+  .bdm-editions-btn { flex: none; width: 40px; height: 40px; padding: 0; }
+  .bdm-edit-delete-row { flex-direction: column; }
 }

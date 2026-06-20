@@ -98,14 +98,30 @@ export const updateReadingProgress = async (
 
 export const finishBook = async (
   id: string,
-  data: { rating: number | null; notes: string | null; finished_at: string | null }
+  data: { rating: number | null; notes: string | null; finished_at: string | null; cover_i?: string | null; isbn?: string | null }
 ): Promise<void> => {
+  const [supabase, user] = await Promise.all([createClient(), getUser()])
+  if (!user) throw new Error('Not authenticated')
+
+  const update: Record<string, unknown> = { status: 'finished', rating: data.rating, notes: data.notes, finished_at: data.finished_at }
+  if (data.cover_i !== undefined) { update.cover_i = data.cover_i; update.isbn = data.isbn ?? null }
+
+  const { error } = await supabase
+    .from('books')
+    .update(update)
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+}
+
+export const updateBookCover = async (id: string, cover_i: string | null, isbn: string | null): Promise<void> => {
   const [supabase, user] = await Promise.all([createClient(), getUser()])
   if (!user) throw new Error('Not authenticated')
 
   const { error } = await supabase
     .from('books')
-    .update({ status: 'finished', rating: data.rating, notes: data.notes, finished_at: data.finished_at })
+    .update({ cover_i, isbn })
     .eq('id', id)
     .eq('user_id', user.id)
 
