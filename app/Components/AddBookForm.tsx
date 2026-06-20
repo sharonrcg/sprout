@@ -41,7 +41,9 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
   const [readingPage, setReadingPage] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [shelfKeys, setShelfKeys] = useState<Set<string>>(new Set())
-  const [visibleCount, setVisibleCount] = useState(10)
+  const [searchOffset, setSearchOffset] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
 
   const [editionPickerTarget, setEditionPickerTarget] = useState<BookSearchResult | null>(null)
   const [coverOverrides, setCoverOverrides] = useState<Record<string, { cover_i: string; isbn: string | null }>>({})
@@ -83,7 +85,7 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
 
   const isMultiMode = mode !== 'reading'
 
-  useEffect(() => { setVisibleCount(10) }, [query])
+  useEffect(() => { setSearchOffset(0); setHasMore(false) }, [query])
 
   useEffect(() => {
     if (selected) return
@@ -93,8 +95,13 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     const ctrl = new AbortController()
     const t = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/books/search?q=${encodeURIComponent(term)}`, { signal: ctrl.signal })
-        if (res.ok) setResults(await res.json())
+        const res = await fetch(`/api/books/search?q=${encodeURIComponent(term)}&offset=0`, { signal: ctrl.signal })
+        if (res.ok) {
+          const data = await res.json()
+          setResults(data)
+          setSearchOffset(10)
+          setHasMore(data.length === 10)
+        }
       } catch (e: unknown) {
         if (e instanceof Error && e.name !== 'AbortError') setResults([])
       } finally {
@@ -103,6 +110,22 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     }, 300)
     return () => { clearTimeout(t); ctrl.abort() }
   }, [query, selected])
+
+  const handleLoadMore = async () => {
+    const term = query.trim()
+    if (!term || isLoadingMore) return
+    setIsLoadingMore(true)
+    try {
+      const res = await fetch(`/api/books/search?q=${encodeURIComponent(term)}&offset=${searchOffset}`)
+      if (res.ok) {
+        const data = await res.json()
+        setResults(prev => [...prev, ...data])
+        setSearchOffset(prev => prev + 10)
+        setHasMore(data.length === 10)
+      }
+    } catch {}
+    setIsLoadingMore(false)
+  }
 
   const isOnShelf = (book: BookSearchResult): boolean => {
     if (book.isbn && shelfKeys.has(`isbn:${book.isbn}`)) return true
@@ -144,7 +167,8 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
     setMultiSelected([])
     setSelected(null)
     setSingleFinishBook(null)
-    setVisibleCount(10)
+    setSearchOffset(0)
+    setHasMore(false)
   }
 
   const handleBulkAdd = () => {
@@ -363,12 +387,12 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               {!isSearching && results.length === 0 && (
                 <p className="abf-results-msg">No matches. Check the spelling?</p>
               )}
-              {results.slice(0, visibleCount).map((book, i) =>
+              {results.map((book, i) =>
                 renderResultItem(book, i, () => handleSelect(book))
               )}
-              {results.length > visibleCount && (
-                <button type="button" onClick={() => setVisibleCount(c => c + 10)} className="abf-show-more-btn">
-                  Show more
+              {hasMore && (
+                <button type="button" onClick={handleLoadMore} disabled={isLoadingMore} className="abf-show-more-btn">
+                  {isLoadingMore ? 'Loading…' : 'Show more'}
                 </button>
               )}
             </div>
@@ -497,12 +521,12 @@ export const AddBookForm = ({ onSuccess, defaultMode = 'finished' }: Props) => {
               {!isSearching && results.length === 0 && (
                 <p className="abf-results-msg">No matches. Check the spelling?</p>
               )}
-              {results.slice(0, visibleCount).map((book, i) =>
+              {results.map((book, i) =>
                 renderResultItem(book, i, () => toggleSelect(book))
               )}
-              {results.length > visibleCount && (
-                <button type="button" onClick={() => setVisibleCount(c => c + 10)} className="abf-show-more-btn">
-                  Show more
+              {hasMore && (
+                <button type="button" onClick={handleLoadMore} disabled={isLoadingMore} className="abf-show-more-btn">
+                  {isLoadingMore ? 'Loading…' : 'Show more'}
                 </button>
               )}
             </div>

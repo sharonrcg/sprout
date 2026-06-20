@@ -58,13 +58,14 @@ export const fetchWorkEditionCovers = async (workKey: string): Promise<EditionCo
   return result
 }
 
-export const searchBooks = async (query: string): Promise<BookSearchResult[]> =>{
+export const searchBooks = async (query: string, offset = 0, limit = 10): Promise<BookSearchResult[]> => {
   if (!query.trim()) return []
 
   const params = new URLSearchParams({
     q: query,
     fields: 'key,title,author_name,first_publish_year,isbn,cover_i,number_of_pages_median',
-    limit: '30',
+    limit: String(limit),
+    offset: String(offset),
   })
 
   const res = await fetch(`${OPEN_LIBRARY_BASE}/search.json?${params}`, {
