@@ -3,12 +3,13 @@
 import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { BookOpen, Check, Leaf, PenLine, Trash2 } from 'lucide-react'
+import { BookOpen, Check, Leaf, List, PenLine, Trash2 } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { removeBook, finishBook } from '@/app/actions'
+import { removeBook, finishBook, updateBookStatus } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import { FinishBookModal } from '@/app/Components/FinishBookModal'
+import { ShelfMove } from '@/app/Components/ShelfMove'
 import type { Book } from '@/lib/types'
 import '@/app/css/ReadingShelfGrid.css'
 import '@/app/globals.css'
@@ -37,10 +38,11 @@ const BookCover = ({ book }: { book: Book }) => {
   )
 }
 
-const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
+const ReadingCard = ({ book, onOpen, onFinish, onMoveToTbr, onRemove }: {
   book: Book
   onOpen: (book: Book) => void
   onFinish: (book: Book) => void
+  onMoveToTbr: (book: Book) => void
   onRemove: (id: string) => void
 }) => {
   const pct = book.page_count && book.page_count > 0
@@ -77,9 +79,7 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
           </div>
         </div>
 
-        {book.notes && <p className="rc-notes">&ldquo;{book.notes}&rdquo;</p>}
-
-        <div className="rc-footer">
+        <div className="rc-footer" onClick={e => e.stopPropagation()}>
           <button
             onClick={(e) => { e.stopPropagation(); onOpen(book) }}
             className="rc-btn rc-btn-update"
@@ -87,13 +87,23 @@ const ReadingCard = ({ book, onOpen, onFinish, onRemove }: {
             <PenLine size={15} />
             <span className="rc-btn-label">Update progress</span>
           </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onFinish(book) }}
-            className="rc-btn rc-btn-finish"
-          >
-            <Check size={15} />
-            <span className="rc-btn-label">Finished</span>
-          </button>
+          <ShelfMove
+            targets={[
+              {
+                id: 'finished',
+                label: 'Finished',
+                swatchClass: 'ic-sage',
+                Icon: Check,
+                onClick: () => onFinish(book),
+              },
+              {
+                id: 'tbr',
+                label: 'Want to read',
+                Icon: List,
+                onClick: () => onMoveToTbr(book),
+              },
+            ]}
+          />
           <button
             onClick={(e) => { e.stopPropagation(); onRemove(book.id) }}
             aria-label="Remove book"
@@ -121,6 +131,13 @@ export const ReadingShelfGrid = ({ books }: Props) => {
   const handleRemove = (id: string) => {
     startTransition(async () => {
       await removeBook(id)
+      router.refresh()
+    })
+  }
+
+  const handleMoveToTbr = (book: Book) => {
+    startTransition(async () => {
+      await updateBookStatus(book.id, 'tbr')
       router.refresh()
     })
   }
@@ -163,6 +180,7 @@ export const ReadingShelfGrid = ({ books }: Props) => {
               book={book}
               onOpen={setActiveBook}
               onFinish={setBookToFinish}
+              onMoveToTbr={handleMoveToTbr}
               onRemove={handleRemove}
             />
           ))}

@@ -136,27 +136,6 @@
   flex-direction: column;
   gap: 8px;
 }
-.bdm-edit-delete-row {
-  display: flex;
-  gap: 8px;
-}
-.bdm-editions-btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--sp-line-2);
-  background: var(--sp-paper);
-  color: var(--sp-ink-soft);
-  font-family: var(--sp-body);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.bdm-editions-btn:hover { background: var(--sp-bg-2); }
 .bdm-edit-btn {
   width: 100%;
   display: inline-flex;
@@ -174,19 +153,55 @@
   cursor: pointer;
   box-shadow: 0 8px 18px -8px var(--sp-sage);
 }
+
+/* ShelfMove stretched to cover width inside left-actions */
+.bdm-left-actions .sm-wrap { display: block; }
+.bdm-left-actions .sm-anchor { display: block; }
+.bdm-left-actions .sm-trigger {
+  width: 100%;
+  justify-content: center;
+}
+.bdm-left-actions .sm-menu {
+  left: 0;
+  right: 0;
+  min-width: 0;
+}
+
+.bdm-editions-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--sp-line-2);
+  background: var(--sp-paper);
+  color: var(--sp-ink-soft);
+  font-family: var(--sp-body);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.bdm-editions-btn:hover { background: var(--sp-bg-2); }
+
 .bdm-delete-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  flex-shrink: 0;
-  background: none;
-  border: 1px solid rgba(150, 60, 40, 0.3);
-  color: #9a3d28;
+  gap: 6px;
+  background: transparent;
+  border: none;
   cursor: pointer;
+  color: #9a3d28;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: var(--sp-body);
+  padding: 7px 12px;
+  border-radius: 999px;
+  transition: background 0.14s;
 }
+.bdm-delete-btn:hover { background: #fbeae4; }
 
 /* ── Body ── */
 .bdm-body {
@@ -347,12 +362,20 @@
   .bdm-content { padding: 36px 20px 72px; }
   .bdm-grid { grid-template-columns: 1fr; gap: 22px; }
   .bdm-left { flex-direction: row; align-items: flex-start; gap: 16px; }
-  .bdm-cover-wrap { width: 200px; flex-shrink: 0; }
-  .bdm-left-actions { flex: 1; padding-top: 4px; }
+  .bdm-cover-wrap { width: 160px; flex-shrink: 0; }
+  .bdm-left-actions { flex: 1; padding-top: 4px; gap: 6px; }
   .bdm-body { padding-top: 0; padding-right: 0; }
-  .bdm-edit-label { display: none; }
+
+  /* icon-only buttons on mobile */
+  .bdm-edit-label,
+  .bdm-editions-label,
+  .bdm-delete-label { display: none; }
   .bdm-edit-btn { width: 40px; height: 40px; padding: 0; box-shadow: none; }
-  .bdm-editions-label { display: none; }
-  .bdm-editions-btn { flex: none; width: 40px; height: 40px; padding: 0; }
-  .bdm-edit-delete-row { flex-direction: column; }
+  .bdm-editions-btn { width: 40px; height: 40px; padding: 0; }
+  .bdm-delete-btn { width: 40px; height: 40px; padding: 0; border: 1px solid rgba(150,60,40,0.3); border-radius: 999px; }
+
+  /* ShelfMove icon-only on mobile */
+  .bdm-left-actions .sm-trigger { width: 40px; height: 40px; padding: 0; }
+  .bdm-left-actions .sm-trigger span,
+  .bdm-left-actions .sm-caret { display: none; }
 }

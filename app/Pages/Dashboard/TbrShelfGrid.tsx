@@ -27,6 +27,7 @@ import { removeBook, updateTbrOrder, finishBook } from '@/app/actions'
 import { AddBookModal } from '@/app/Components/AddBookModal'
 import { ReadingProgressModal } from '@/app/Components/ReadingProgressModal'
 import { FinishBookModal } from '@/app/Components/FinishBookModal'
+import { ShelfMove } from '@/app/Components/ShelfMove'
 import type { Book } from '@/lib/types'
 import '@/app/css/TbrShelfGrid.css'
 import '@/app/globals.css'
@@ -56,14 +57,12 @@ const BookCover = ({ book }: { book: Book }) => {
 const SortableBookItem = ({
   book,
   index,
-  isPending,
   onFinish,
   onProgress,
   onDelete,
 }: {
   book: Book
   index: number
-  isPending: boolean
   onFinish: (book: Book) => void
   onProgress: (book: Book) => void
   onDelete: (id: string) => void
@@ -102,14 +101,24 @@ const SortableBookItem = ({
           )}
         </div>
         <div className="tbr-actions">
-          <div className="tbr-btn-group">
-            <button onClick={() => onProgress(book)} disabled={isPending} className="tbr-btn tbr-btn-reading">
-              <BookOpen size={14} /> <span className="tbr-btn-label">Reading</span>
-            </button>
-            <button onClick={() => onFinish(book)} disabled={isPending} className="tbr-btn tbr-btn-finished">
-              <Check size={14} /> <span className="tbr-btn-label">Finished</span>
-            </button>
-          </div>
+          <ShelfMove
+            targets={[
+              {
+                id: 'reading',
+                label: 'Reading now',
+                swatchClass: 'ic-amber',
+                Icon: BookOpen,
+                onClick: () => onProgress(book),
+              },
+              {
+                id: 'finished',
+                label: 'Finished',
+                swatchClass: 'ic-sage',
+                Icon: Check,
+                onClick: () => onFinish(book),
+              },
+            ]}
+          />
           <button
             className="tbr-delete-btn"
             onClick={() => onDelete(book.id)}
@@ -207,7 +216,6 @@ export const TbrShelfGrid = ({ books }: Props) => {
                   key={book.id}
                   book={book}
                   index={i}
-                  isPending={isPending}
                   onFinish={setBookToFinish}
                   onProgress={setProgressBook}
                   onDelete={handleDelete}

@@ -26,7 +26,7 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
   const [editionPickerOpen, setEditionPickerOpen] = useState(false)
 
   const pageCount = book.page_count ?? 0
-  const [page, setPage] = useState(book.current_page ?? 0)
+  const [page, setPage] = useState(book.status === 'tbr' || book.status === 'finished' ? 0 : (book.current_page ?? 0))
 
   const sliderMax = pageCount > 0 ? pageCount : 100
   const pct = Math.min(100, Math.round((page / sliderMax) * 100))
@@ -62,9 +62,14 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
     startTransition(async () => {
       await updateReadingProgress(book.id, page, pageCount || undefined)
       await saveCoverIfChanged()
-      if (book.status === 'tbr') await updateBookStatus(book.id, 'reading')
-      router.refresh()
-      onClose()
+      if (book.status === 'tbr' || book.status === 'finished') {
+        await updateBookStatus(book.id, 'reading')
+        onClose()
+        router.push('/reading')
+      } else {
+        router.refresh()
+        onClose()
+      }
     })
   }
 
@@ -151,17 +156,6 @@ export const ReadingProgressModal = ({ book, onClose }: Props) => {
           </div>
 
           <div className="rpm-actions">
-            {book.status !== 'tbr' && (
-              <button
-                className="rpm-finish-btn"
-                onClick={handleFinish}
-                disabled={isPending}
-                style={{ opacity: isPending ? 0.7 : 1 }}
-              >
-                <Check size={16} />
-                {isPending && activeAction === 'finish' ? 'Moving…' : 'I finished it'}
-              </button>
-            )}
             <button
               className="rpm-save-btn"
               onClick={handleSave}

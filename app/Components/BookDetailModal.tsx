@@ -3,10 +3,12 @@
 import { useState, useEffect, useTransition } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { Leaf, BookOpen, Check, Pencil, Trash2, Layers } from 'lucide-react'
+import { Leaf, BookOpen, Check, List, Pencil, Trash2, Layers } from 'lucide-react'
 import { coverUrl, coverUrlByIsbn } from '@/lib/open-library'
-import { updateBook, removeBook, updateBookCover } from '@/app/actions'
+import { updateBook, removeBook, updateBookCover, updateBookStatus } from '@/app/actions'
 import { EditionPickerModal } from './EditionPickerModal'
+import { ReadingProgressModal } from './ReadingProgressModal'
+import { ShelfMove } from './ShelfMove'
 import type { Book, EditionCover } from '@/lib/types'
 import '@/app/css/BookDetailModal.css'
 
@@ -66,6 +68,7 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
   const [editing, setEditing] = useState(false)
   const [coverOverride, setCoverOverride] = useState<EditionCover | null>(null)
   const [editionPickerOpen, setEditionPickerOpen] = useState(false)
+  const [progressOpen, setProgressOpen] = useState(false)
 
   useEffect(() => {
     window.addEventListener('sprout:close-modals', onClose)
@@ -121,6 +124,15 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
     })
   }
 
+  const handleMoveToReading = () => setProgressOpen(true)
+
+  const handleMoveToTbr = () => {
+    startTransition(async () => {
+      await updateBookStatus(book.id, 'tbr')
+      router.push('/tbr')
+    })
+  }
+
   return (
     <>
       {editionPickerOpen && (
@@ -161,18 +173,33 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
                       <button className="bdm-edit-btn" onClick={() => setEditing(true)}>
                         <Pencil size={14} /> <span className="bdm-edit-label">Edit</span>
                       </button>
-                      <div className="bdm-edit-delete-row">
-                        <button type="button" className="bdm-editions-btn" onClick={() => setEditionPickerOpen(true)}>
-                          <Layers size={14} /> <span className="bdm-editions-label">Change edition</span>
-                        </button>
-                        <button
-                          className="bdm-delete-btn"
-                          onClick={handleDelete}
-                          aria-label="Remove book"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
+                      <ShelfMove
+                        targets={[
+                          {
+                            id: 'reading',
+                            label: 'Reading now',
+                            swatchClass: 'ic-amber',
+                            Icon: BookOpen,
+                            onClick: handleMoveToReading,
+                          },
+                          {
+                            id: 'tbr',
+                            label: 'Want to read',
+                            Icon: List,
+                            onClick: handleMoveToTbr,
+                          },
+                        ]}
+                      />
+                      <button type="button" className="bdm-editions-btn" onClick={() => setEditionPickerOpen(true)}>
+                        <Layers size={14} /> <span className="bdm-editions-label">Change edition</span>
+                      </button>
+                      <button
+                        className="bdm-delete-btn"
+                        onClick={handleDelete}
+                        aria-label="Remove book"
+                      >
+                        <Trash2 size={14} /> <span className="bdm-delete-label">Delete</span>
+                      </button>
                     </>
                   )}
                 </div>
@@ -257,6 +284,9 @@ export const BookDetailModal = ({ book, onClose }: Props) => {
             </div>
         </div>
       </div>
+      {progressOpen && (
+        <ReadingProgressModal book={book} onClose={() => setProgressOpen(false)} />
+      )}
     </>
   )
 }

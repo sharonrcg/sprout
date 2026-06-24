@@ -9,7 +9,7 @@ import '@/app/css/SidebarNav.css'
 
 const NAV = [
   { href: '/finished', label: 'Finished', Icon: CheckCheck },
-  { href: '/reading', label: 'Reading', Icon: BookOpen },
+  { href: '/reading', label: 'Reading now', Icon: BookOpen },
   { href: '/tbr', label: 'Want to read', Icon: ListOrdered },
   { href: '/you', label: 'You', Icon: User },
 ]

@@ -55,6 +55,9 @@ interface Props {
     cover_i: string | null
     isbn: string | null
     openLibraryKey?: string
+    rating?: number | null
+    notes?: string | null
+    finished_at?: string | null
   }
   onSave: (data: FinishData) => Promise<void>
   onClose: () => void
@@ -62,9 +65,9 @@ interface Props {
 
 export const FinishBookModal = ({ book, onSave, onClose }: Props) => {
   const [isPending, startTransition] = useTransition()
-  const [rating, setRating] = useState(0)
-  const [finishedAt, setFinishedAt] = useState('')
-  const [notes, setNotes] = useState('')
+  const [rating, setRating] = useState(book.rating ?? 0)
+  const [finishedAt, setFinishedAt] = useState(book.finished_at ?? '')
+  const [notes, setNotes] = useState(book.notes ?? '')
   const [coverOverride, setCoverOverride] = useState<EditionCover | null>(null)
   const [editionPickerOpen, setEditionPickerOpen] = useState(false)
 
