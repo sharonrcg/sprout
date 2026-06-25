@@ -229,4 +229,7 @@
   .tbr-rank { display: none; }
   .tbr-btn-label { display: none; }
   .tbr-btn { padding: 6px 10px; }
+  .tbr-actions .sm-trigger span,
+  .tbr-actions .sm-caret { display: none; }
+  .tbr-actions .sm-trigger { padding: 6px 10px; }
 }

@@ -132,6 +132,7 @@
     bottom: 0;
     top: auto;
     min-width: 0;
+    max-width: none;
     border-radius: 20px 20px 0 0;
     padding: 10px 14px calc(16px + env(safe-area-inset-bottom));
     animation: smSheet 0.22s ease;

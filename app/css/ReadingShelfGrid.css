@@ -252,4 +252,7 @@
 @media (max-width: 640px) {
   .rc-btn-label { display: none; }
   .rc-btn { padding: 8px 11px; }
+  .rc-footer .sm-trigger span,
+  .rc-footer .sm-caret { display: none; }
+  .rc-footer .sm-trigger { padding: 8px 11px; }
 }
